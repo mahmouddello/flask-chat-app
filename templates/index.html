@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div>
+        <div class="wrapper">
+            {% if not logged_in %}
+                <h3 class="text-above-image">Chat with People</h3>
+                <img src="{{ url_for('static', filename='images/online-chatting.png') }}" alt="">
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

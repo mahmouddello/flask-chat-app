@@ -1,0 +1,147 @@
+@import url('https://fonts.googleapis.com/css2?family=Maven+Pro&family=Montserrat&display=swap');
+
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: "Maven Pro", sans-serif;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: white;
+    position: relative;
+}
+
+.wrapper img {
+    max-width: 100%;
+    max-height: 100%;
+    z-index: 1; /* Ensure the image is behind the text */
+}
+
+.text-above-image {
+    position: absolute;
+    top: 10px; /* Adjust the top position as needed to place it above the image */
+    left: 0;
+    right: 0;
+    margin: 0 auto; /* Center the text horizontally */
+    z-index: 2; /* Ensure the text appears above the image */
+    text-align: center; /* Center the text horizontally */
+}
+
+
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 75vh;
+}
+
+.login-form {
+    font-family: 'Maven Pro', sans-serif;
+    max-width: 400px;
+    width: 100%;
+    padding: 20px;
+    border: 1px outset white;
+    box-shadow: 0 0 10px rgb(0, 77, 128);
+    border-radius: 12px;
+}
+
+.login-form a {
+    text-decoration: none;
+}
+
+.login-form .form-control {
+    margin-bottom: 10px;
+}
+
+.register-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 75vh;
+}
+
+#alert {
+    text-align: center;
+    font-family: 'Maven Pro', sans-serif;
+    font-size: 15px;
+    width: 350px;
+}
+
+.register-form {
+    font-family: 'Maven Pro', sans-serif;
+    max-width: 400px;
+    width: 100%;
+    max-height: min-content;
+    padding: 20px;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+    border-radius: 12px;
+    background-color: white;
+}
+
+.register-form #reg {
+    text-decoration: none;
+}
+
+.error {
+    font-size: 15px;
+    color: red;
+}
+
+#login_link {
+    text-decoration: none;
+}
+
+.chat-box {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-top: 20px;
+}
+
+.chat-header {
+    background-color: #f5f5f5;
+    padding: 10px;
+}
+
+.messages {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.messages li {
+    margin-bottom: 10px;
+}
+
+.messages li strong {
+    font-weight: bold;
+}
+
+.send_message_form {
+    margin-top: 20px;
+}
+
+#room_name {
+    padding-top: 8px;
+    padding-left: 5px;
+
+}
+
+.rooms-wrapper {
+    display: flex;
+    flex-direction: column; /* Stack children vertically */
+    justify-content: center;
+    align-items: center;
+    height: 25vh;
+    background-color: white; /* Optional background color for the container */
+    position: relative; /* Enable positioning of children elements */
+}
