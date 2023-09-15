@@ -53,6 +53,22 @@ def get_room(room_id: ObjectId) -> dict:
     return rooms_collection.find_one({'_id': ObjectId(room_id)})
 
 
+def save_room(room_name: str, created_by: str) -> ObjectId:
+    """Allows user to create a room, giving him admin access and automatically add him to the room."""
+    room_id = rooms_collection.insert_one({
+        "name": room_name, "created_by": created_by, "created_at": datetime.now()
+    }).inserted_id  # id property for the new room
+    add_room_member(room_id=room_id, room_name=room_name, username=created_by, added_by=created_by, is_room_admin=True)
+    return room_id
+
+
+def add_room_member(room_id: ObjectId, room_name: str, username: str, added_by, is_room_admin=False):
+    """Add a member to a room with `room_id`."""
+    room_members_collection.insert_one(
+        {'_id': {'room_id': ObjectId(room_id), 'username': username}, 'room_name': room_name, 'added_by': added_by,
+         'added_at': datetime.now(), 'is_room_admin': is_room_admin})
+
+
 def get_rooms_for_user(username: str) -> list:
     """Returns list of rooms for the current signed-in user."""
     return list(room_members_collection.find({'_id.username': username}))

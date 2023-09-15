@@ -1,12 +1,12 @@
 from bson import ObjectId
 from flask import Blueprint, render_template, request, jsonify
 from flask_login import current_user, login_required
-from database import get_rooms_for_user, get_room, get_messages, get_room_members, join_room_member
+from database import get_rooms_for_user, get_room, get_messages, get_room_members, join_room_member, save_room
 
 chat = Blueprint("chat", __name__, url_prefix="/chat")
 
 
-@chat.route("/my_rooms/")
+@chat.route("/my_rooms")
 @login_required
 def my_rooms() -> str:
     return render_template(
@@ -46,3 +46,16 @@ def join_room():
             print("He is already user")
             return jsonify({"status": "Already Room Member"})
         join_room_member(room_id=room_id, username=current_user.username, room_name=room_name)
+
+
+@chat.route("/create_room", methods=["POST"])
+def create_room():
+    data = request.get_json(force=True)
+    room_name = data.get("room_name")
+    try:
+        save_room(room_name=room_name, created_by=current_user.username)
+    except Exception as e:
+        print(e)
+        return jsonify({"status": False})
+    else:
+        return jsonify({"status": True})
