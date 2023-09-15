@@ -54,6 +54,16 @@ $(document).ready(function () {
     })
 })
 
+$(document).ready(function () {
+    $("#create-room-modal-form").submit(function (event) {
+        event.preventDefault()
+        if (validateCreateRoomModal()) {
+            let room_name_input = $("#roomName").val()
+            ajax_create_room_post(room_name_input)
+        }
+    })
+})
+
 // AJAX OPERATIONS
 let ajax_login_post = (usernameVal, passwordVal) => {
     const data = {
@@ -126,11 +136,38 @@ let ajax_join_room_post = (room_id) => {
         success: function (data) {
             if (data.status === "Joined") {
                 customPopoutAlert("Joined Room Successfully.", "success")
-                window.location.href = "http://127.0.0.1:5000/chat/my_rooms/"
+                window.location.href = "http://127.0.0.1:5000/chat/my_rooms"
             } else if (data.status === "Already Room Member") {
                 customPopoutAlert("You're already member of this room", "error")
             } else if (data.status === "No Room Found") {
                 customPopoutAlert("Invalid Room Id", "error")
+            }
+        },
+        error: function (xhr) {
+            customPopoutAlert("Error:" + xhr.status + "Check the error code and try again", "error")
+        }
+    });
+}
+
+let ajax_create_room_post = (room_name) => {
+    const user_data = {
+        "room_name": room_name
+    }
+    $.ajax({
+        type: "POST",
+        contentType: "application/json",
+        url: "http://127.0.0.1:5000/chat/create_room",
+        data: JSON.stringify(user_data),
+        dataType: "json",
+        cache: false,
+        timeout: 4000,
+        success: function (data) {
+            if (data.status) {
+                customPopoutAlert("Created Room Successfully, Redirecting...", "success")
+                window.location.href = "http://127.0.0.1:5000/chat/my_rooms"
+            }
+            else {
+                customPopoutAlert("Failed to create room :(", "error")
             }
         },
         error: function (xhr) {
@@ -256,6 +293,40 @@ let validateJoinRoomModal = () => {
             messages: {
                 roomID: {
                     required: "Room ID field can't be blank!"
+                }
+            },
+        });
+        return $modal_form.valid(); // true if form is validated
+    }
+    return false;
+}
+
+let validateCreateRoomModal = () => {
+    const $modal_form = $("#create-room-modal-form")
+    if ($modal_form.length) {
+        $modal_form.validate({
+            errorClass: "error", // Adding the error class to the error message element
+            errorElement: "div", // Using div element to wrap the error message
+            errorPlacement: function (error, element) {
+                // Insert error message below each invalid input field
+                error.insertAfter(element);
+            },
+            highlight: function (element) {
+                // add "is-invalid" class to the input field's parent div
+                $(element).closest(".form-control").addClass("is-invalid");
+            },
+            unhighlight: function (element) {
+                // Remove "is-invalid" class from the input field's parent div
+                $(element).closest(".form-control").removeClass("is-invalid");
+            },
+            rules: {
+                roomName: {
+                    required: true
+                }
+            },
+            messages: {
+                roomName: {
+                    required: "Room Name field can't be blank!"
                 }
             },
         });

@@ -68,12 +68,13 @@
              aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
+                    <div style="margin: 0 auto; margin-top: 5px" id="alert"></div>
                     <div class="modal-header">
                         <h5 class="modal-title" id="createRoomModalLabel">Create Room</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="create-room-modal-form">
+                        <form action="{{ url_for('chat.create_room') }}" id="create-room-modal-form" method="post">
                             <div class="mb-3">
                                 <div class="error"></div>
                                 <label for="roomName" class="form-label">Room Name:</label>
@@ -83,7 +84,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-success">Create</button>
+                        <button id="create-room-modal-button" type="button" class="btn btn-success">Create</button>
                     </div>
                 </div>
             </div>
@@ -95,6 +96,13 @@
             $('#join_room_modal_btn').click(function () {
                 // Trigger the form submission when the button is clicked
                 $('#join-room-modal-form').submit();
+            });
+
+            // Select the "Create" button by its id
+            $('#create-room-modal-button').click(function () {
+                console.log('Create button clicked');
+                // Trigger the form submission when the button is clicked
+                $('#create-room-modal-form').submit();
             });
         });
     </script>

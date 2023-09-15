@@ -138,10 +138,19 @@ body {
 
 .rooms-wrapper {
     display: flex;
-    flex-direction: column; /* Stack children vertically */
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 25vh;
-    background-color: white; /* Optional background color for the container */
-    position: relative; /* Enable positioning of children elements */
+    height: 40vh;
+    background-color: white;
+    position: relative;
+}
+
+.list-group-item {
+    background-color: transparent !important;
+    color: black !important;
+}
+
+.list-group-item:hover {
+    background-color: #2b77d9 !important;
 }
