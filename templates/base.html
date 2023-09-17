@@ -21,7 +21,8 @@
     <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
         <a href="{{ url_for('home') }}"
            class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
-            <img style="padding-right: 5px" src="{{ url_for('static', filename='images/chat-svg.svg') }}" alt="chat" width="40">
+            <img style="padding-right: 5px" src="{{ url_for('static', filename='images/chat-svg.svg') }}" alt="chat"
+                 width="40">
             <span class="fs-4">Chat App</span>
         </a>
 
@@ -42,4 +43,6 @@
 {% block content %}{% endblock %}
 </body>
 <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/validations.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ajax_operations.js') }}"></script>
 </html>
