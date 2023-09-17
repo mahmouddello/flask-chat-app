@@ -22,8 +22,14 @@ def load_user(username):
 
 
 @app.route('/')
-def home():  # put application's code here
-    return render_template("index.html", logged_in=current_user.is_authenticated)
+def home():
+    if current_user.is_authenticated:
+        return render_template(
+            template_name_or_list="index.html",
+            logged_in=current_user.is_authenticated,
+            current_user=current_user
+        )
+    return render_template(template_name_or_list="index.html")
 
 
 # SocketIO Events and Emits
