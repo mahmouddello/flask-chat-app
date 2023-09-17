@@ -45,7 +45,7 @@ def join_room():
         if current_user.username in room_members:
             print("He is already user")
             return jsonify({"status": "Already Room Member"})
-    return join_room_member(room_id=room_id, username=current_user.username, room_name=room_name)
+        return join_room_member(room_id=room_id, username=current_user.username, room_name=room_name)
 
 
 @chat.route("/create_room", methods=["POST"])
