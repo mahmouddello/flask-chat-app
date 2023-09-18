@@ -7,6 +7,12 @@ authentication: Blueprint = Blueprint("authentication", __name__, url_prefix="/a
 
 @authentication.route(rule="/login", methods=["GET", "POST"])
 def login() -> Response | str:
+    """
+     Manages the login operation logic, handling both GET and POST requests,
+     and redirects authenticated users to the home page.
+
+    :return: HTML Template or Response.
+    """
     if current_user.is_authenticated:
         return redirect(url_for("home"))
 
@@ -29,6 +35,12 @@ def login() -> Response | str:
 
 @authentication.route(rule="/register", methods=["GET", "POST"])
 def register() -> Response | str:
+    """
+    Handles the registration operation logic, including GET and POST requests,
+    and redirects authenticated users to the home page.
+
+    :return: HTML Template or Response.
+    """
     if current_user.is_authenticated:
         return redirect(url_for("home"))
 
@@ -44,5 +56,10 @@ def register() -> Response | str:
 @authentication.route(rule="/logout")
 @login_required
 def logout() -> Response:
+    """
+    Logs out the user and redirects them to the home page; requires user authentication
+
+    :return: Response
+    """
     logout_user()
     return redirect(url_for("home"))

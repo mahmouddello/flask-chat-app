@@ -1,5 +1,5 @@
 from bson import ObjectId
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, Response
 from flask_login import current_user, login_required
 from database import get_rooms_for_user, get_room, get_messages, get_room_members, join_room_member, save_room
 
@@ -9,6 +9,12 @@ chat = Blueprint("chat", __name__, url_prefix="/chat")
 @chat.route("/my_rooms")
 @login_required
 def my_rooms() -> str:
+    """
+    A Flask Route to view my_rooms.html template.
+
+    :returns: Renders my_rooms.html template.
+    :rtype: str
+    """
     return render_template(
         template_name_or_list="my_rooms.html",
         logged_in=current_user.is_authenticated,
@@ -19,6 +25,14 @@ def my_rooms() -> str:
 @chat.route("/my_rooms/<room_id>")
 @login_required
 def view_room(room_id: ObjectId) -> str:
+    """
+    A Flask Route to view a chat room in a separate template.
+    :param room_id: The chat room id fetched from my_rooms template.
+    :type room_id: ObjectId
+
+    :returns: Renders view_room.html template.
+    :rtype: str
+    """
     room = get_room(room_id)
     messages = get_messages(room_id)
     return render_template(
@@ -31,7 +45,13 @@ def view_room(room_id: ObjectId) -> str:
 
 
 @chat.route("/join_room", methods=["POST"])
-def join_room():
+def join_room() -> Response:
+    """
+    Responsible about joining room logic, handles different exceptions;
+    like if user is already in this room, or the room id is invalid.
+
+    :return: Response
+    """
     data = request.get_json(force=True)
     room_id = data.get("room_id")
     room = get_room(room_id)
@@ -43,13 +63,17 @@ def join_room():
         room_members = get_room_members(room_id=room_id)
         room_members = [member["_id"]["username"] for member in room_members]
         if current_user.username in room_members:
-            print("He is already user")
             return jsonify({"status": "Already Room Member"})
         return join_room_member(room_id=room_id, username=current_user.username, room_name=room_name)
 
 
 @chat.route("/create_room", methods=["POST"])
 def create_room():
+    """
+    Responsible about creating room logic.
+
+    :return: Response
+    """
     data = request.get_json(force=True)
     room_name = data.get("room_name")
     try:

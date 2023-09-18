@@ -7,6 +7,12 @@ dashboard_operations = Blueprint("dashboard_operations", __name__, url_prefix="/
 
 @dashboard_operations.route(rule="/change_username", methods=["POST"])
 def change_username() -> Response:
+    """
+    Accepts a POST request to change a user's username,
+    validates the provided password, and updates the username if valid.
+
+    :return: Response
+    """
     user_object = get_user(current_user.username)
     data = request.get_json(force=True)
     new_username = data.get("new_username")
@@ -18,6 +24,12 @@ def change_username() -> Response:
 
 @dashboard_operations.route(rule="/change_email", methods=["POST"])
 def change_email() -> Response:
+    """
+    Handles a POST request to update a user's email address, checks for the same email,
+    validates the password, and updates the email if conditions are met.
+
+    :return: Response
+    """
     user_object = get_user(current_user.username)
     data = request.get_json(force=True)
     new_email = data.get("new_email")
@@ -32,7 +44,13 @@ def change_email() -> Response:
 
 
 @dashboard_operations.route(rule="/change_password", methods=["POST"])
-def change_password():
+def change_password() -> Response:
+    """
+    Manages a POST request to modify a user's password, checks for the same password,
+    validates the old password, and updates it if criteria are satisfied.
+
+    :return: Response
+    """
     user_object = get_user(current_user.username)
     data = request.get_json(force=True)
     old_password = data.get("old_password")
