@@ -140,13 +140,27 @@ def db_change_password(username: str, new_password: str) -> Response:
 # Room Operations
 
 def get_room(room_id: ObjectId) -> dict:
-    """Find a room by ```room_id```, auto generated id in the mongo db is saved in `Binary text JSON Format`,
-    so we need to convert our string to a format of BSON to match with the ```_id``` attribute."""
+    """
+    Find a room by `room_id`
+
+    :param room_id: fetched id for the room.
+    :type room_id: ObjectId
+    :return: Dictionary (JSON) object contains room data.
+    """
     return rooms_collection.find_one({'_id': ObjectId(room_id)})
 
 
 def save_room(room_name: str, created_by: str) -> ObjectId:
-    """Allows user to create a room, giving him admin access and automatically add him to the room."""
+    """
+    Allows a user to create a room, giving them admin access and automatically adding them to the room.
+
+    :param room_name: The name of the room to be created.
+    :param created_by: The username of the user who is creating the room.
+    :type room_name: str,
+    :type created_by: str
+
+    :return: Created Room's ID.
+    """
     room_id = rooms_collection.insert_one({
         "name": room_name, "created_by": created_by, "created_at": datetime.now()
     }).inserted_id  # id property for the new room
@@ -155,25 +169,53 @@ def save_room(room_name: str, created_by: str) -> ObjectId:
 
 
 def add_room_member(room_id: ObjectId, room_name: str, username: str, added_by, is_room_admin=False):
-    """Add a member to a room with `room_id`."""
+    """
+    Add a member to a room with `room_id`.
+
+    :param room_id: The ObjectId of the room to which the member will be added.
+    :param room_name: The name of the room.
+    :param username: The username of the member to be added.
+    :param added_by: The username of the user who is adding the member (default is "Himself").
+    :param is_room_admin: Whether the member should have admin privileges in the room (default is False).
+    :return:
+    """
     room_members_collection.insert_one(
         {'_id': {'room_id': ObjectId(room_id), 'username': username}, 'room_name': room_name, 'added_by': added_by,
          'added_at': datetime.now(), 'is_room_admin': is_room_admin})
 
 
 def get_rooms_for_user(username: str) -> list:
-    """Returns list of rooms for the current signed-in user."""
+    """
+    Returns a list of rooms for the current signed-in user.
+
+    :param username: The username of the user.
+    :return: A list of rooms the user is a member of.
+    """
     return list(room_members_collection.find({'_id.username': username}))
 
 
 def get_room_members(room_id: ObjectId) -> list:
-    """Returns a list of members for a room."""
+    """
+    Returns a list of members for a room.
+
+    :param room_id: The ObjectId of the room.
+    :return: A list of room members.
+    """
     return list(room_members_collection.find({'_id.room_id': ObjectId(room_id)}))
 
 
 def join_room_member(room_id: ObjectId, room_name: str, username: str, added_by="Himself",
                      is_room_admin=False) -> Response:
-    """Responsible for joining room functionality by room_id, handling this operation on join room modal."""
+    """
+    Responsible for joining a room by room_id, handling this operation on the join room modal.
+
+    :param room_id: The ObjectId of the room to join.
+    :param room_name: The name of the room.
+    :param username: The username of the user joining the room.
+    :param added_by: The username of the user who is adding the member (default is "Himself").
+    :param is_room_admin: Whether the member should have admin privileges in the room (default is False).
+    :return:
+    """
     room_members_collection.insert_one(
         {'_id': {'room_id': ObjectId(room_id), 'username': username}, 'room_name': room_name, 'added_by': added_by,
          'added_at': datetime.now(), 'is_room_admin': is_room_admin})
@@ -186,12 +228,24 @@ def join_room_member(room_id: ObjectId, room_name: str, username: str, added_by=
 # Messages
 
 def get_messages(room_id: ObjectId) -> list:
-    """Returns list of messages for the selected room."""
+    """
+    Returns a list of messages for the selected room.
+
+    :param room_id: The ObjectId of the room.
+    :return: A list of messages in the room.
+    """
     return list(messages_collection.find({"room_id": room_id}))
 
 
-def save_message(room_id: ObjectId, text: str, sender: str):
-    """Save message to the database after emitting event of SocketIO."""
+def save_message(room_id: ObjectId, text: str, sender: str) -> None:
+    """
+    Save a message to the database after emitting an event of SocketIO.
+
+    :param room_id:  The ObjectId of the room where the message is sent.
+    :param text: The content of the message.
+    :param sender: The username of the message sender.
+    :return: None
+    """
     messages_collection.insert_one({
         "room_id": room_id,
         "text": text,
