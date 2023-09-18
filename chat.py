@@ -6,7 +6,7 @@ from database import get_rooms_for_user, get_room, get_messages, get_room_member
 chat = Blueprint("chat", __name__, url_prefix="/chat")
 
 
-@chat.route("/my_rooms")
+@chat.route(rule="/my_rooms")
 @login_required
 def my_rooms() -> str:
     """
@@ -22,7 +22,7 @@ def my_rooms() -> str:
     )
 
 
-@chat.route("/my_rooms/<room_id>")
+@chat.route(rule="/my_rooms/<room_id>")
 @login_required
 def view_room(room_id: ObjectId) -> str:
     """
@@ -44,7 +44,7 @@ def view_room(room_id: ObjectId) -> str:
     )
 
 
-@chat.route("/join_room", methods=["POST"])
+@chat.route(rule="/join_room", methods=["POST"])
 def join_room() -> Response:
     """
     Responsible about joining room logic, handles different exceptions;
@@ -67,7 +67,7 @@ def join_room() -> Response:
         return join_room_member(room_id=room_id, username=current_user.username, room_name=room_name)
 
 
-@chat.route("/create_room", methods=["POST"])
+@chat.route(rule="/create_room", methods=["POST"])
 def create_room():
     """
     Responsible about creating room logic.
