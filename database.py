@@ -27,7 +27,7 @@ messages_collection = chat_db.get_collection("messages")
 
 # indexes
 users_collection.create_index([("username", 1)], unique=True)
-rooms_collection.create_index([("room_id", 1)], unique=True)
+
 
 
 # User Operations
