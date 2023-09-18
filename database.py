@@ -2,8 +2,9 @@ import os
 from datetime import datetime
 from bson import ObjectId
 from flask import jsonify, Response
-from flask_login import current_user
+from flask_login import current_user, logout_user
 from pymongo.mongo_client import MongoClient
+from pymongo.errors import DuplicateKeyError
 from werkzeug.security import generate_password_hash
 from dotenv import load_dotenv
 from user import User
@@ -24,25 +25,116 @@ rooms_collection = chat_db.get_collection("rooms")
 room_members_collection = chat_db.get_collection("room_members")
 messages_collection = chat_db.get_collection("messages")
 
+# indexes
+users_collection.create_index([("username", 1)], unique=True)
+rooms_collection.create_index([("room_id", 1)], unique=True)
 
+
+# User Operations
 def get_user(username: str) -> User | None:
     """
     Gets the data of user from the database by unique `_id` (MongoDB Default ID) which is username.
-    :returns: User or None
+    :param username: Username sent from the form
+    :returns: User Object
+    :rtype: User or None
     """
-    user_data = users_collection.find_one({"_id": username})
-    return User(username=user_data["_id"], email=user_data["email"],
+    user_data = users_collection.find_one({"username": username})
+    return User(username=user_data["username"], email=user_data["email"],
                 password=user_data["password"]) if user_data else None
 
 
-def save_user(username: str, email: str, password: str) -> None:
-    """Save user to database, doesn't return anything."""
-    users_collection.insert_one({
-        "_id": username,  # primary key on mongo db
-        "email": email,
-        "password": generate_password_hash(password)
+def save_user(username: str, email: str, password: str) -> Response:
+    """Saves a user to database."""
+    try:
+        users_collection.insert_one({
+            "username": username,
+            "email": email,
+            "password": generate_password_hash(password)
 
-    })
+        })
+    except DuplicateKeyError:
+        return jsonify({"status": False})
+
+    else:
+        logout_user()
+        return jsonify({"status": True})
+
+
+def db_change_username(old_username: str, new_username: str) -> Response:
+    """
+    Updates the username of the current user in the database.
+
+    :param old_username: current user's username
+    :param new_username: The new username to set for the current user.
+    :type old_username: str    :type new_username: str
+
+    :returns: A Response object indicating the status of the username update.
+    :rtype: Response
+    """
+    try:
+        users_collection.update_one(
+            {"username": old_username},
+            {"$set": {"username": new_username}},
+        )
+    except DuplicateKeyError:
+        return jsonify({"status": "Duplicate"})
+
+    except Exception as e:
+        print(e)
+        return jsonify({"status": False})
+
+    else:
+
+        return jsonify({"status": True})
+
+
+def db_change_email(username: str, new_email: str) -> Response:
+    """
+    Updates the username of the current user in the database.
+
+    :param username:  current user's username
+    :param new_email: The new email to set for the current user.
+    :type new_email: str
+
+    :returns: A Response object indicating the status of the email update.
+    :rtype: Response
+    """
+    try:
+        users_collection.update_one(
+            {"username": username},
+            {"$set": {"email": new_email}}
+        )
+    except Exception as e:
+        print(e)
+        return jsonify({"status": False})
+
+    else:
+        logout_user()
+        return jsonify({"status": True})
+
+
+def db_change_password(username: str, new_password: str) -> Response:
+    """
+    Updates the password of the current user in the database.
+
+    :param username: current user's username
+    :param new_password: user's new password
+
+    :return: A Response object indicating the status of the password update.
+    :rtype: Response
+    """
+    try:
+        users_collection.update_one(
+            {"username": username},
+            {"$set": {"password": generate_password_hash(new_password)}}
+        )
+    except Exception as e:
+        print(e)
+        return jsonify({"status": False})
+
+    else:
+        logout_user()
+        return jsonify({"status": True})
 
 
 # Room Operations

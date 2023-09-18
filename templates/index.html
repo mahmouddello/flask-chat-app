@@ -43,6 +43,7 @@
                  aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
+                        <div style="margin: 0 auto; margin-top: 5px" id="usernameAlert"></div>
                         <div class="modal-header">
                             <h5 class="modal-title" id="usernameModalLabel">Change Username</h5>
                             <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
@@ -50,16 +51,21 @@
                             </button>
                         </div>
                         <div class="modal-body">
-                            <form>
+                            <form id="changeUsernameModalForm" method="post">
                                 <div class="form-group">
+                                    <div class="error"></div>
                                     <label for="newUsername">New Username</label>
-                                    <input type="text" class="form-control" id="newUsername">
+                                    <input name="newUsername" type="text" class="form-control" id="newUsername">
+                                    <div class="error"></div>
+                                    <label for="existingPassword1">Password</label>
+                                    <input name="existingPassword1" type="password" class="form-control"
+                                           id="existingPassword1">
                                 </div>
                             </form>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" id="saveUsername">Save</button>
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-success" id="saveUsername">Save</button>
                         </div>
                     </div>
                 </div>
@@ -70,6 +76,7 @@
                  aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
+                        <div style="margin: 5px auto 0;" id="emailAlert"></div>
                         <div class="modal-header">
                             <h5 class="modal-title" id="emailModalLabel">Change Email</h5>
                             <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
@@ -77,16 +84,21 @@
                             </button>
                         </div>
                         <div class="modal-body">
-                            <form>
+                            <form id="changeEmailModalForm" method="post">
                                 <div class="form-group">
+                                    <div class="error"></div>
                                     <label for="newEmail">New Email</label>
-                                    <input type="email" class="form-control" id="newEmail">
+                                    <input name="newEmail" type="email" class="form-control" id="newEmail">
+                                    <div class="error"></div>
+                                    <label for="existingPassword2">Password</label>
+                                    <input name="existingPassword2" type="password" class="form-control"
+                                           id="existingPassword2">
                                 </div>
                             </form>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" id="saveEmail">Save</button>
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-success" id="saveEmail">Save</button>
                         </div>
                     </div>
                 </div>
@@ -97,6 +109,7 @@
                  aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
+                        <div style="margin: 0 auto; margin-top: 5px" id="passwordAlert"></div>
                         <div class="modal-header">
                             <h5 class="modal-title" id="passwordModalLabel">Change Password</h5>
                             <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
@@ -104,24 +117,28 @@
                             </button>
                         </div>
                         <div class="modal-body">
-                            <form>
+                            <form id="changePasswordModalForm">
                                 <div class="form-group">
+                                    <div class="error"></div>
                                     <label for="oldPassword">Old Password</label>
-                                    <input type="password" class="form-control" id="oldPassword">
+                                    <input name="oldPassword" type="password" class="form-control" id="oldPassword">
                                 </div>
                                 <div class="form-group">
+                                    <div class="error"></div>
                                     <label for="newPassword">New Password</label>
-                                    <input type="password" class="form-control" id="newPassword">
+                                    <input name="newPassword" type="password" class="form-control" id="newPassword">
                                 </div>
                                 <div class="form-group">
-                                    <label for="confirmNewPassword">Confirm New Password</label>
-                                    <input type="password" class="form-control" id="confirmNewPassword">
+                                    <div class="error"></div>
+                                    <label for="newPasswordConfirm">Confirm New Password</label>
+                                    <input name="newPasswordConfirm" type="password" class="form-control"
+                                           id="newPasswordConfirm">
                                 </div>
                             </form>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" id="savePassword">Save</button>
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-success" id="savePassword">Save</button>
                         </div>
                     </div>
                 </div>

@@ -1,18 +1,24 @@
+import os
 from flask import Flask, render_template
 from authentication import authentication
 from chat import chat
+from dashboard import dashboard_operations
 from flask_login import LoginManager, current_user
 from flask_socketio import SocketIO, join_room, leave_room
-
 from database import get_user, save_message
+from dotenv import load_dotenv
+
+load_dotenv("./.env")
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "secret"
+app.config["SECRET_KEY"] = os.getenv("FLASK_SECRETKEY")
 login_manager = LoginManager(app)
 socketio = SocketIO(app)
 
+# blue prints
 app.register_blueprint(authentication)
 app.register_blueprint(chat)
+app.register_blueprint(dashboard_operations)
 
 
 # flask_login injection

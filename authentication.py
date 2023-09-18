@@ -1,6 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify, Response
 from flask_login import login_user, logout_user, current_user, login_required
-from pymongo.errors import DuplicateKeyError
 from database import get_user, save_user
 
 authentication: Blueprint = Blueprint("authentication", __name__, url_prefix="/authentication")
@@ -34,21 +33,11 @@ def register() -> Response | str:
         return redirect(url_for("home"))
 
     if request.method == "POST":
-        try:
-            data = request.get_json(force=True)
-            username = data.get("username")
-            email = data.get("email")
-            password_input = data.get("password")
-            try:
-                save_user(username=username, email=email, password=password_input)
-            # user already exists
-            except DuplicateKeyError:
-                return jsonify({"status": False})
-            # return true status, then redirect to the login page from js.
-            else:
-                return jsonify({"status": True})
-        except Exception as e:
-            print(e)
+        data = request.get_json(force=True)
+        username = data.get("username")
+        email = data.get("email")
+        password_input = data.get("password")
+        return save_user(username=username, email=email, password=password_input)
     return render_template("register.html")
 
 

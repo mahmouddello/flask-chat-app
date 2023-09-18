@@ -18,6 +18,28 @@ $(document).ready(function () {
     // Monitor changes to the URL (e.g., back/forward navigation)
     window.addEventListener("popstate", navbarActivating);
 
+    // button bindings
+
+    $('#join_room_modal_btn').click(function () {
+        $('#join-room-modal-form').submit();
+    });
+
+    $('#create-room-modal-button').click(function () {
+        $('#create-room-modal-form').submit();
+    });
+
+    $('#saveUsername').click(function () {
+        $("#changeUsernameModalForm").submit();
+    })
+
+    $("#saveEmail").click(function () {
+        $("#changeEmailModalForm").submit()
+    })
+
+    $("#savePassword").click(function () {
+        $("#changePasswordModalForm").submit()
+    })
+
     // Register Form
     $("#registerForm").submit(function (event) {
         event.preventDefault();
@@ -26,7 +48,6 @@ $(document).ready(function () {
             username = $("#username").val()
             email = $("#email").val()
             password = $("#password").val()
-            console.log("NO REG VALIDATION PROBLEMS")
             ajax_register_post(username, email, password)
         }
     });
@@ -58,6 +79,37 @@ $(document).ready(function () {
             ajax_create_room_post(room_name_input)
         }
     });
+
+    // Change Username Modal Form
+    $("#changeUsernameModalForm").submit(function (event) {
+        event.preventDefault();
+        if (validateChangeUsernameModalForm()) {
+            let new_username = $("#newUsername").val()
+            let password = $("#existingPassword1").val()
+            ajax_change_username(new_username, password)
+        }
+    })
+
+    // Change Email Modal Form
+    $("#changeEmailModalForm").submit(function (event) {
+        event.preventDefault();
+        if (validateChangeEmailModalForm()) {
+            let email = $("#newEmail").val()
+            let password = $("#existingPassword2").val()
+            ajax_change_email(email, password)
+        }
+    })
+
+    // Change Password Modal Form
+    $("#changePasswordModalForm").submit(function (event) {
+        event.preventDefault();
+        if (validateChangePasswordModalForm()) {
+            let old_password = $("#oldPassword").val()
+            let new_password = $("#newPassword").val()
+            ajax_change_password(old_password, new_password)
+        }
+    })
+
 });
 
 // Navbar Highlight Activating
@@ -82,9 +134,9 @@ let navbarActivating = () => {
     });
 }
 
-let customPopoutAlert = (message, status) => {
+let customPopoutAlert = (message, status, alertDivId = "#alert") => {
     // Custom Alert Using Bootstrap
-    let alertDiv = $("#alert")
+    let alertDiv = $(alertDivId)
     if (status === "success") {
         alertDiv.addClass("alert alert-success")
         alertDiv.text(message)

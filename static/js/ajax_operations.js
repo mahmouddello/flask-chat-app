@@ -108,3 +108,118 @@ let ajax_create_room_post = (room_name) => {
         }
     });
 }
+
+let ajax_change_username = (new_username, password) => {
+    const user_data = {
+        "new_username": new_username,
+        "password": password
+    }
+    $.ajax({
+        type: "POST",
+        contentType: "application/json",
+        url: "http://127.0.0.1:5000/edit_credentials/change_username",
+        data: JSON.stringify(user_data),
+        dataType: "json",
+        cache: false,
+        timeout: 4000,
+        success: function (data) {
+            if (data.status === true) {
+                customPopoutAlert("You've changed your username successfully! Redirecting to login page",
+                    "success",
+                    "#usernameAlert")
+                window.location.href = "http://127.0.0.1:5000/authentication/login"
+            } else if (data.status === "Duplicate") {
+                customPopoutAlert("This username already has been taken, try different one!",
+                    "error", "#usernameAlert")
+            } else if (data.status === "Invalid Password") {
+                customPopoutAlert("Invalid password, try again :(", "error", "#usernameAlert")
+            } else {
+                customPopoutAlert("An error occurred during writing to the database!",
+                    "error", "#usernameAlert")
+            }
+        },
+        error: function (xhr) {
+            customPopoutAlert("Error:" + xhr.status + "Check the error code and try again",
+                "error", "#usernameAlert")
+        }
+    });
+}
+
+let ajax_change_email = (new_email, password) => {
+    const user_data = {
+        "new_email": new_email,
+        "password": password
+    }
+    $.ajax({
+        type: "POST",
+        contentType: "application/json",
+        url: "http://127.0.0.1:5000/edit_credentials/change_email",
+        data: JSON.stringify(user_data),
+        dataType: "json",
+        cache: false,
+        timeout: 4000,
+        success: function (data) {
+            if (data.status === true) {
+                customPopoutAlert("You've changed your email successfully! Redirecting to login page",
+                    "success",
+                    "#emailAlert")
+                window.location.href = "http://127.0.0.1:5000/authentication/login"
+            } else if (data.status === "Same Email") {
+                customPopoutAlert("You can't change your email to the same email! try different one!",
+                    "error",
+                    "#emailAlert")
+            } else {
+                customPopoutAlert("Either password is incorrect or an error occurred during writing to the database!" +
+                    ", try again later", "error", "#emailAlert")
+            }
+        },
+        error: function (xhr) {
+            customPopoutAlert("Error:" + xhr.status + "Check the error code and try again",
+                "error", "#emailAlert")
+        }
+    });
+}
+
+let ajax_change_password = (old_password, new_password) => {
+    const user_data = {
+        "old_password": old_password,
+        "new_password": new_password
+    }
+    $.ajax({
+        type: "POST",
+        contentType: "application/json",
+        url: "http://127.0.0.1:5000/edit_credentials/change_password",
+        data: JSON.stringify(user_data),
+        dataType: "json",
+        cache: false,
+        timeout: 4000,
+        success: function (data) {
+            if (data.status === true) {
+                customPopoutAlert(
+                    "Password has been changed successfully! Redirecting to login page",
+                    "success",
+                    "#passwordAlert")
+                window.location.href = "http://127.0.0.1:5000/authentication/login"
+            } else if (data.status === "Same Password") {
+                customPopoutAlert(
+                    "You can't change your password to the existed one, try different password!",
+                    "error",
+                    "#passwordAlert")
+            } else if (data.status === "Invalid Password") {
+                customPopoutAlert(
+                    "Invalid Password, check your password and try again!",
+                    "error",
+                    "#passwordAlert")
+            } else {
+                customPopoutAlert(
+                    "An error occurred, try again later!",
+                    "error",
+                    "#passwordAlert")
+            }
+        },
+        error: function (xhr) {
+            customPopoutAlert("Error:" + xhr.status + "Check the error code and try again",
+                "error", "#passwordAlert")
+        }
+    });
+}

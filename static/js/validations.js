@@ -1,4 +1,9 @@
 function initializeFormValidation(formId, rules, messages) {
+    // custom email regex
+    $.validator.methods.email = function (value, element) {
+        return this.optional(element) || /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(value);
+    };
+
     const $form = $(formId);
     if ($form.length) {
         $form.validate({
@@ -113,4 +118,80 @@ function validateCreateRoomModal() {
     };
 
     return initializeFormValidation("#create-room-modal-form", rules, messages);
+}
+
+function validateChangeUsernameModalForm() {
+    const rules = {
+        newUsername: {
+            required: true
+        },
+        existingPassword1: {
+            required: true
+        }
+    };
+
+    const messages = {
+        newUsername: {
+            required: "New Username can't be blank!"
+        },
+        existingPassword1: {
+            required: "Please input your password!"
+        }
+    };
+
+    return initializeFormValidation("#changeUsernameModalForm", rules, messages)
+}
+
+function validateChangeEmailModalForm() {
+    const rules = {
+        newEmail: {
+            required: true,
+            email: true
+        },
+        existingPassword2: {
+            required: true
+        }
+    };
+
+    const messages = {
+        newEmail: {
+            required: "New Email can't be blank!",
+            email: "Please provide a valid email address!"
+        },
+        existingPassword2: {
+            required: "Please input your password!"
+        }
+    };
+
+    return initializeFormValidation("#changeEmailModalForm", rules, messages)
+}
+
+function validateChangePasswordModalForm() {
+    const rules = {
+        oldPassword: {
+            required: true
+        },
+        newPassword: {
+            required: true
+        },
+        newPasswordConfirm: {
+            required: true,
+            equalTo: "#newPassword"
+        }
+    };
+
+    const messages = {
+        oldPassword: {
+            required: "This field can't be blank!"
+        },
+        newPassword: {
+            required: "This field can't be blank!"
+        },
+        newPasswordConfirm: {
+            required: "This field can't be blank!",
+            equalTo: "Passwords doesn't match!"
+        }
+    }
+
+    return initializeFormValidation("#changePasswordModalForm", rules, messages)
 }
