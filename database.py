@@ -78,10 +78,30 @@ def db_change_username(old_username: str, new_username: str) -> Response:
     :rtype: Response
     """
     try:
+        # Update the username in the users_collection
         users_collection.update_one(
             {"username": old_username},
             {"$set": {"username": new_username}},
         )
+
+        # Update the username in the room_members collection where added_by matches the old username
+        room_members_collection.update_many(
+            {"$and": [{"username": old_username}, {"added_by": old_username}]},
+            {"$set": {"username": new_username, "added_by": new_username}},
+        )
+
+        # Update the username in the rooms collection
+        rooms_collection.update_many(
+            {"created_by": old_username},
+            {"$set": {"created_by": new_username}},
+        )
+
+        # Update the sender information in messages collection
+        messages_collection.update_many(
+            {"sender": old_username},
+            {"$set": {"sender": new_username}}
+        )
+
     except DuplicateKeyError:
         return jsonify({"status": "Duplicate"})
 
@@ -90,6 +110,7 @@ def db_change_username(old_username: str, new_username: str) -> Response:
         return jsonify({"status": False})
 
     else:
+        logout_user()
         return jsonify({"status": True})
 
 
@@ -142,6 +163,16 @@ def db_change_password(username: str, new_password: str) -> Response:
         return jsonify({"status": True})
 
 
+def is_room_member(room_id: ObjectId, username: str):
+    """
+
+    :param room_id:
+    :param username:
+    :return:
+    """
+    return room_members_collection.count_documents({'_id.room_id': ObjectId(room_id), 'username': username})
+
+
 # Room Operations
 
 def get_room(room_id: ObjectId) -> dict:
@@ -185,7 +216,7 @@ def add_room_member(room_id: ObjectId, room_name: str, username: str, added_by, 
     :return:
     """
     room_members_collection.insert_one(
-        {'_id': {'room_id': ObjectId(room_id), 'username': username}, 'room_name': room_name, 'added_by': added_by,
+        {'_id': {'room_id': ObjectId(room_id)}, 'username': username, 'room_name': room_name, 'added_by': added_by,
          'added_at': datetime.now(), 'is_room_admin': is_room_admin})
 
 
@@ -196,7 +227,7 @@ def get_rooms_for_user(username: str) -> list:
     :param username: The username of the user.
     :return: A list of rooms the user is a member of.
     """
-    return list(room_members_collection.find({'_id.username': username}))
+    return list(room_members_collection.find({'username': username}))
 
 
 def get_room_members(room_id: ObjectId) -> list:
@@ -222,10 +253,10 @@ def join_room_member(room_id: ObjectId, room_name: str, username: str, added_by=
     :return:
     """
     room_members_collection.insert_one(
-        {'_id': {'room_id': ObjectId(room_id), 'username': username}, 'room_name': room_name, 'added_by': added_by,
+        {'_id': {'room_id': ObjectId(room_id)}, 'username': username, 'room_name': room_name, 'added_by': added_by,
          'added_at': datetime.now(), 'is_room_admin': is_room_admin})
     room_members = get_room_members(room_id=room_id)
-    room_members = [member["_id"]["username"] for member in room_members]
+    room_members = [member["username"] for member in room_members]
     if current_user.username in room_members:
         return jsonify({"status": "Joined"})
 

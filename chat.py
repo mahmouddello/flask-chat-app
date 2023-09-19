@@ -1,7 +1,8 @@
 from bson import ObjectId
-from flask import Blueprint, render_template, request, jsonify, Response
+from flask import Blueprint, render_template, request, jsonify, Response, abort
 from flask_login import current_user, login_required
-from database import get_rooms_for_user, get_room, get_messages, get_room_members, join_room_member, save_room
+from database import get_rooms_for_user, get_room, get_messages, get_room_members, join_room_member, save_room, \
+    is_room_member
 
 chat = Blueprint("chat", __name__, url_prefix="/chat")
 
@@ -34,14 +35,16 @@ def view_room(room_id: ObjectId) -> str:
     :rtype: str
     """
     room = get_room(room_id)
-    messages = get_messages(room_id)
-    return render_template(
-        "view_room.html",
-        room=room,
-        logged_in=current_user.is_authenticated,
-        messages=messages,
-        username=current_user.username
-    )
+    if room and is_room_member(room_id=room_id, username=current_user.username):
+        messages = get_messages(room_id)
+        return render_template(
+            "view_room.html",
+            room=room,
+            logged_in=current_user.is_authenticated,
+            messages=messages,
+            username=current_user.username
+        )
+    abort(404)
 
 
 @chat.route(rule="/join_room", methods=["POST"])
@@ -61,7 +64,7 @@ def join_room() -> Response:
         return jsonify({"status": "No Room Found"})  # handle room not found
     else:
         room_members = get_room_members(room_id=room_id)
-        room_members = [member["_id"]["username"] for member in room_members]
+        room_members = [member["username"] for member in room_members]
         if current_user.username in room_members:
             return jsonify({"status": "Already Room Member"})
         return join_room_member(room_id=room_id, username=current_user.username, room_name=room_name)
