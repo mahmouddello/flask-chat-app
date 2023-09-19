@@ -29,7 +29,6 @@ messages_collection = chat_db.get_collection("messages")
 users_collection.create_index([("username", 1)], unique=True)
 
 
-
 # User Operations
 def get_user(username: str) -> User | None:
     """
@@ -44,7 +43,14 @@ def get_user(username: str) -> User | None:
 
 
 def save_user(username: str, email: str, password: str) -> Response:
-    """Saves a user to database."""
+    """
+    Saves a user to database.
+
+    :param username: username of the user that will be created.
+    :param email: email of the user that will be created.
+    :param password: password of the user that will be created.
+    :return: Response
+    """
     try:
         users_collection.insert_one({
             "username": username,
@@ -84,7 +90,6 @@ def db_change_username(old_username: str, new_username: str) -> Response:
         return jsonify({"status": False})
 
     else:
-
         return jsonify({"status": True})
 
 
