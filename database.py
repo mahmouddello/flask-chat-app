@@ -163,12 +163,13 @@ def db_change_password(username: str, new_password: str) -> Response:
         return jsonify({"status": True})
 
 
-def is_room_member(room_id: ObjectId, username: str):
+def is_room_member(room_id: ObjectId, username: str) -> int:
     """
+    Checks for if the current user is member of the room that he want to view and text into.
 
-    :param room_id:
-    :param username:
-    :return:
+    :param room_id: room id fetched from the link in my_rooms.html template
+    :param username: current user's username.
+    :return: Integer state which represent boolean value (0 or 1).
     """
     return room_members_collection.count_documents({'_id.room_id': ObjectId(room_id), 'username': username})
 
