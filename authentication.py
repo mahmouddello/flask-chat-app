@@ -57,7 +57,7 @@ def register() -> Response | str:
 @login_required
 def logout() -> Response:
     """
-    Logs out the user and redirects them to the home page; requires user authentication
+    Logs out the user and redirects them to the home page; requires user authentication.
 
     :return: Response
     """

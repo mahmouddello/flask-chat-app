@@ -27,7 +27,7 @@ def load_user(username):
     return get_user(username)
 
 
-@app.route('/')
+@app.route(rule='/')
 def home():
     if current_user.is_authenticated:
         return render_template(
@@ -40,16 +40,26 @@ def home():
 
 # SocketIO Events and Emits
 @socketio.on("join_room")
-def handle_join_room_event(data):
-    """Handle the join room event from socket.on() in js"""
+def handle_join_room_event(data) -> None:
+    """
+    Handle the join room event from socket.on() in javascript.
+
+    :param data: JSON data parsed from javascript.
+    :return: None
+    """
     app.logger.info(f"{data['username']} has joined the room {data['room_id']}")
     join_room(data["room_id"])
     socketio.emit("join_room_announcement", data)  # we should handle this event in javascript
 
 
 @socketio.on("send_message")
-def handle_send_message_event(data):
-    """Handle the send message event from socket.on() in javascript """
+def handle_send_message_event(data) -> None:
+    """
+    Handle the send message event from socket.on() in javascript.
+
+    :param data: JSON data parsed from javascript.
+    :return: None
+    """
     app.logger.info(f"{data['username']} has sent a message to the room {data['room_id']}: {data['message']}")
     save_message(room_id=data['room_id'], text=data['message'], sender=data['username'])
     socketio.emit("receive_message", data, room=data["room_id"])
@@ -57,7 +67,12 @@ def handle_send_message_event(data):
 
 
 @socketio.on("leave_room")
-def handle_leave_room_event(data):
+def handle_leave_room_event(data) -> None:
+    """
+    Handle leave room event from socket.on() in javascript.
+    :param data: JSON data parsed from javascript.
+    :return: None
+    """
     app.logger.info(f"{data['username']} has left the room {data['room_id']}")
     leave_room(data['room_id'])
     socketio.emit('leave_room_announcement', data, room=data['room_id'])

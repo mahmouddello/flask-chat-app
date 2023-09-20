@@ -251,7 +251,7 @@ def join_room_member(room_id: ObjectId, room_name: str, username: str, added_by=
     :param username: The username of the user joining the room.
     :param added_by: The username of the user who is adding the member (default is "Himself").
     :param is_room_admin: Whether the member should have admin privileges in the room (default is False).
-    :return:
+    :return: Response
     """
     room_members_collection.insert_one(
         {'_id': {'room_id': ObjectId(room_id)}, 'username': username, 'room_name': room_name, 'added_by': added_by,
