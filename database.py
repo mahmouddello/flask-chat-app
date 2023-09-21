@@ -3,7 +3,6 @@ from datetime import datetime
 from functools import wraps
 from typing import Callable, Any
 from random import choice
-from bson import ObjectId
 from flask import jsonify, Response, abort
 from flask_login import current_user, logout_user
 from pymongo.mongo_client import MongoClient
@@ -252,7 +251,7 @@ def get_room(room_id: int) -> dict:
     Find a room by `room_id`
 
     :param room_id: fetched id for the room.
-    :type room_id: ObjectId
+    :type room_id: int
     :return: Dictionary (JSON) object contains room data.
     """
     return rooms_collection.find_one({'room_id': room_id})
@@ -284,7 +283,7 @@ def add_room_member(room_id: int, room_name: str, username: str, added_by, is_ro
     """
     Add a member to a room with `room_id`.
 
-    :param room_id: The ObjectId of the room to which the member will be added.
+    :param room_id: The id of the room to which the member will be added.
     :param room_name: The name of the room.
     :param username: The username of the member to be added.
     :param added_by: The username of the user who is adding the member (default is "Himself").
@@ -310,7 +309,7 @@ def get_room_members(room_id: int) -> list:
     """
     Returns a list of members for a room.
 
-    :param room_id: The ObjectId of the room.
+    :param room_id: The id of the room.
     :return: A list of room members.
     """
     return list(room_members_collection.find({'room_id': room_id}))
@@ -321,7 +320,7 @@ def join_room_member(room_id: int, room_name: str, username: str, added_by="Hims
     """
     Responsible for joining a room by room_id, handling this operation on the join room modal.
 
-    :param room_id: The ObjectId of the room to join.
+    :param room_id: The id of the room to join.
     :param room_name: The name of the room.
     :param username: The username of the user joining the room.
     :param added_by: The username of the user who is adding the member (default is "Himself").
@@ -357,7 +356,7 @@ def get_messages(room_id: int) -> list:
     """
     Returns a list of messages for the selected room.
 
-    :param room_id: The ObjectId of the room.
+    :param room_id: The id of the room.
     :return: A list of messages in the room.
     """
     return list(messages_collection.find({"room_id": room_id}))
@@ -367,7 +366,7 @@ def save_message(room_id: int, text: str, sender: str) -> None:
     """
     Save a message to the database after emitting an event of SocketIO.
 
-    :param room_id:  The ObjectId of the room where the message is sent.
+    :param room_id:  The id of the room where the message is sent.
     :param text: The content of the message.
     :param sender: The username of the message sender.
     :return: None
