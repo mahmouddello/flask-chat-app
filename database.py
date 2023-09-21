@@ -1,10 +1,13 @@
 import os
 from datetime import datetime
+from functools import wraps
+from typing import Callable, Any
+from random import choice
 from bson import ObjectId
-from flask import jsonify, Response
+from flask import jsonify, Response, abort
 from flask_login import current_user, logout_user
 from pymongo.mongo_client import MongoClient
-from pymongo.errors import DuplicateKeyError
+from pymongo.errors import DuplicateKeyError, PyMongoError
 from werkzeug.security import generate_password_hash
 from dotenv import load_dotenv
 from user import User
@@ -106,7 +109,7 @@ def db_change_username(old_username: str, new_username: str) -> Response:
     except DuplicateKeyError:
         return jsonify({"status": "Duplicate"})
 
-    except Exception as e:
+    except PyMongoError as e:
         print(e)
         return jsonify({"status": False})
 
@@ -131,7 +134,7 @@ def db_change_email(username: str, new_email: str) -> Response:
             {"username": username},
             {"$set": {"email": new_email}}
         )
-    except Exception as e:
+    except PyMongoError as e:
         print(e)
         return jsonify({"status": False})
 
@@ -155,7 +158,7 @@ def db_change_password(username: str, new_password: str) -> Response:
             {"username": username},
             {"$set": {"password": generate_password_hash(new_password)}}
         )
-    except Exception as e:
+    except PyMongoError as e:
         print(e)
         return jsonify({"status": False})
 
@@ -173,6 +176,73 @@ def is_room_member(room_id: int, username: str) -> int:
     :return: Integer state which represent boolean value (0 or 1).
     """
     return room_members_collection.count_documents({'room_id': room_id, 'username': username})
+
+
+def is_admin(room_id: int, username: str) -> int:
+    """
+    Checks if the user is admin.
+    :param room_id: room's id.
+    :param username: current user's username.
+    :return: Boolean state of 0 or 1 (True or False)
+    """
+    return room_members_collection.count_documents({
+        "room_id": room_id,
+        "username": username,
+        "is_room_admin": True
+    })
+
+
+def admin_required(func: Callable[..., Any]) -> Callable[..., Any]:
+    """
+    Decorator to prevent accessing some routes for non-admin users.
+    :param func: Decorated function
+    :return:
+    """
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        room_id = kwargs.get("room_id")
+        username = current_user.username  # Assuming you have access to the current user's username
+
+        # Check if the user is an admin for the specified room
+        if not is_admin(room_id, username):
+            return abort(403)  # Return a forbidden (403) error if the user is not an admin
+
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def delete_room_member(room_id: int, username: str) -> Response:
+    """
+    Deletes member from a room, if he is admin and there is other members in the room; it transfers admin abilities
+    to a random user. if he is the only member in the room and the admin leaves, the room also get deleted.
+    :param room_id: current room's id.
+    :param username: current logged-in user's username.
+    :return: Response
+    """
+    try:
+        # Check if the user is an admin
+        if is_admin(room_id, username):
+            room_members = get_room_members(room_id)
+
+            # Delete non-admin members
+            room_members = [member["username"] for member in room_members if not member["is_room_admin"]]
+            if room_members:
+                new_admin = choice(room_members)
+                room_members_collection.update_one(
+                    {'room_id': room_id, "username": new_admin},
+                    {'$set': {"is_room_admin": True}}
+                )
+            else:
+                # Delete the room because no members left
+                rooms_collection.delete_one({"room_id": room_id})
+
+        # Delete the user
+        room_members_collection.delete_one({"room_id": room_id, "username": username})
+
+        return jsonify({"status": True})
+    except PyMongoError:
+        return jsonify({"status": False})
 
 
 # Room Operations
@@ -269,9 +339,9 @@ def join_room_member(room_id: int, room_name: str, username: str, added_by="Hims
 
 def get_next_sequence_value(sequence_name: str) -> int:
     """
-
+    Gets the last sequential value of the sequence name from the collection and increment it by 1.
     :param sequence_name:
-    :return:
+    :return: The incremented sequential value.
     """
     sequence_doc = sequences_collection.find_one_and_update(
         {"_id": sequence_name},

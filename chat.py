@@ -1,10 +1,11 @@
-from bson import ObjectId
 from flask import Blueprint, render_template, request, jsonify, Response, abort
 from flask_login import current_user, login_required
+from pymongo.errors import PyMongoError
+
 from database import (
     get_rooms_for_user, get_room, get_messages, get_room_members,
     join_room_member, save_room,
-    is_room_member
+    is_room_member, is_admin, admin_required, delete_room_member
 )
 
 chat = Blueprint("chat", __name__, url_prefix="/chat")
@@ -38,7 +39,6 @@ def view_room(room_id: int) -> str:
     :rtype: str
     """
     room = get_room(room_id)
-    print(f"This is Room: {room}")
     if room and is_room_member(room_id=room_id, username=current_user.username):
         messages = get_messages(room_id)
         return render_template(
@@ -46,13 +46,15 @@ def view_room(room_id: int) -> str:
             room=room,
             logged_in=current_user.is_authenticated,
             messages=messages,
-            username=current_user.username
+            username=current_user.username,
+            is_user_admin=is_admin(room_id=room_id, username=current_user.username)
         )
-    return "<h1>BRUH</h1>"
+    return abort(404)
 
 
 @chat.route("/my_rooms/<int:room_id>/edit")
 @login_required
+@admin_required
 def edit_room(room_id: int):
     room = get_room(room_id)
     room_members = get_room_members(room_id)
@@ -98,8 +100,19 @@ def create_room():
     room_name = data.get("room_name")
     try:
         save_room(room_name=room_name, created_by=current_user.username)
-    except Exception as e:
-        print(e)
+    except PyMongoError:
         return jsonify({"status": False})
     else:
         return jsonify({"status": True})
+
+
+@chat.route(rule="/leave_room", methods=["POST"])
+def leave_room() -> Response:
+    """
+    Route to handle leave room functionality.
+    :return: Response
+    """
+    data = request.get_json(force=True)
+    room_id = int(data.get("room_id"))
+    username = data.get("username")
+    return delete_room_member(room_id=room_id, username=username)

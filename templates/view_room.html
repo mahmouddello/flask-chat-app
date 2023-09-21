@@ -1,14 +1,21 @@
 {% extends 'base.html' %}
 {% block title %}Chat | {{ room.name }}{% endblock %}
 {% block content %}
+    <div id="alert"></div>
     <div class="container">
         <div class="row">
             <div class="col-md-12">
                 <div class="chat-box">
                     <div class="chat-header">
                         <strong class="mb-1">{{ room.name }}</strong>
-                        <button class="btn btn-primary">Edit Room</button>
-                        <button class="btn btn-danger">Leave Room</button>
+                        {% if is_user_admin %}
+                            <a href="{{ url_for('chat.edit_room', room_id=room.room_id) }}" class="btn btn-primary">Edit
+                                Room</a>
+                        {% endif %}
+                        <button class="btn btn-danger" onclick="ajax_leave_room(this)"
+                                data-room-id="{{ room.room_id }}"
+                                data-username="{{ username }}">Leave Room
+                        </button>
                     </div>
                     <hr>
                     <div class="messages" style="max-height: 400px; overflow-y: auto;">
@@ -39,5 +46,3 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
     <script src="{{ url_for('static', filename='js/socketio_events.js') }}"></script>
 {% endblock %}
-
-

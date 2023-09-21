@@ -223,3 +223,29 @@ let ajax_change_password = (old_password, new_password) => {
         }
     });
 }
+
+let ajax_leave_room = (button) => {
+    const room_id = button.getAttribute("data-room-id");
+    const username = button.getAttribute("data-username");
+    const user_data = {
+        "room_id": room_id,
+        "username": username
+    };
+    $.ajax({
+        type: "POST",
+        contentType: "application/json",
+        url: "http://127.0.0.1:5000/chat/leave_room",
+        data: JSON.stringify(user_data),
+        dataType: "json",
+        cache: false,
+        timeout: 4000,
+        success: function (data) {
+            if (data.status) {
+                customPopoutAlert("Leaved Room Successfully", "success")
+                window.location.href = "http://127.0.0.1:5000"
+            } else {
+                customPopoutAlert("Failed to leave", "error")
+            }
+        }
+    });
+}
