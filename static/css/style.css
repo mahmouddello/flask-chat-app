@@ -154,3 +154,16 @@ body {
 .list-group-item:hover {
     background-color: #2b77d9 !important;
 }
+
+.chat-header {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.chat-header strong {
+    flex: 1;
+}
+
+.chat-header button {
+    margin-left: 5px;
+}

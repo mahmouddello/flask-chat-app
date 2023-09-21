@@ -24,6 +24,7 @@ users_collection = chat_db.get_collection("users")
 rooms_collection = chat_db.get_collection("rooms")
 room_members_collection = chat_db.get_collection("room_members")
 messages_collection = chat_db.get_collection("messages")
+sequences_collection = chat_db.get_collection("sequences")
 
 # indexes
 users_collection.create_index([("username", 1)], unique=True)
@@ -163,7 +164,7 @@ def db_change_password(username: str, new_password: str) -> Response:
         return jsonify({"status": True})
 
 
-def is_room_member(room_id: ObjectId, username: str) -> int:
+def is_room_member(room_id: int, username: str) -> int:
     """
     Checks for if the current user is member of the room that he want to view and text into.
 
@@ -171,12 +172,12 @@ def is_room_member(room_id: ObjectId, username: str) -> int:
     :param username: current user's username.
     :return: Integer state which represent boolean value (0 or 1).
     """
-    return room_members_collection.count_documents({'_id.room_id': ObjectId(room_id), 'username': username})
+    return room_members_collection.count_documents({'room_id': room_id, 'username': username})
 
 
 # Room Operations
 
-def get_room(room_id: ObjectId) -> dict:
+def get_room(room_id: int) -> dict:
     """
     Find a room by `room_id`
 
@@ -184,10 +185,10 @@ def get_room(room_id: ObjectId) -> dict:
     :type room_id: ObjectId
     :return: Dictionary (JSON) object contains room data.
     """
-    return rooms_collection.find_one({'_id': ObjectId(room_id)})
+    return rooms_collection.find_one({'room_id': room_id})
 
 
-def save_room(room_name: str, created_by: str) -> ObjectId:
+def save_room(room_name: str, created_by: str) -> int:
     """
     Allows a user to create a room, giving them admin access and automatically adding them to the room.
 
@@ -198,14 +199,18 @@ def save_room(room_name: str, created_by: str) -> ObjectId:
 
     :return: Created Room's ID.
     """
-    room_id = rooms_collection.insert_one({
-        "name": room_name, "created_by": created_by, "created_at": datetime.now()
-    }).inserted_id  # id property for the new room
-    add_room_member(room_id=room_id, room_name=room_name, username=created_by, added_by=created_by, is_room_admin=True)
+    room_id = get_next_sequence_value("room_id")
+    rooms_collection.insert_one({
+        "room_id": room_id,
+        "name": room_name,
+        "created_by": created_by,
+        "created_at": datetime.now()
+    })
+    add_room_member(room_id, room_name=room_name, username=created_by, added_by=created_by, is_room_admin=True)
     return room_id
 
 
-def add_room_member(room_id: ObjectId, room_name: str, username: str, added_by, is_room_admin=False):
+def add_room_member(room_id: int, room_name: str, username: str, added_by, is_room_admin=False):
     """
     Add a member to a room with `room_id`.
 
@@ -217,7 +222,7 @@ def add_room_member(room_id: ObjectId, room_name: str, username: str, added_by, 
     :return:
     """
     room_members_collection.insert_one(
-        {'_id': {'room_id': ObjectId(room_id)}, 'username': username, 'room_name': room_name, 'added_by': added_by,
+        {"room_id": room_id, 'username': username, 'room_name': room_name, 'added_by': added_by,
          'added_at': datetime.now(), 'is_room_admin': is_room_admin})
 
 
@@ -231,17 +236,17 @@ def get_rooms_for_user(username: str) -> list:
     return list(room_members_collection.find({'username': username}))
 
 
-def get_room_members(room_id: ObjectId) -> list:
+def get_room_members(room_id: int) -> list:
     """
     Returns a list of members for a room.
 
     :param room_id: The ObjectId of the room.
     :return: A list of room members.
     """
-    return list(room_members_collection.find({'_id.room_id': ObjectId(room_id)}))
+    return list(room_members_collection.find({'room_id': room_id}))
 
 
-def join_room_member(room_id: ObjectId, room_name: str, username: str, added_by="Himself",
+def join_room_member(room_id: int, room_name: str, username: str, added_by="Himself",
                      is_room_admin=False) -> Response:
     """
     Responsible for joining a room by room_id, handling this operation on the join room modal.
@@ -254,7 +259,7 @@ def join_room_member(room_id: ObjectId, room_name: str, username: str, added_by=
     :return: Response
     """
     room_members_collection.insert_one(
-        {'_id': {'room_id': ObjectId(room_id)}, 'username': username, 'room_name': room_name, 'added_by': added_by,
+        {'room_id': room_id, 'username': username, 'room_name': room_name, 'added_by': added_by,
          'added_at': datetime.now(), 'is_room_admin': is_room_admin})
     room_members = get_room_members(room_id=room_id)
     room_members = [member["username"] for member in room_members]
@@ -262,9 +267,23 @@ def join_room_member(room_id: ObjectId, room_name: str, username: str, added_by=
         return jsonify({"status": "Joined"})
 
 
+def get_next_sequence_value(sequence_name: str) -> int:
+    """
+
+    :param sequence_name:
+    :return:
+    """
+    sequence_doc = sequences_collection.find_one_and_update(
+        {"_id": sequence_name},
+        {"$inc": {"sequence_value": 1}},
+        return_document=True
+    )
+    return sequence_doc["sequence_value"]
+
+
 # Messages
 
-def get_messages(room_id: ObjectId) -> list:
+def get_messages(room_id: int) -> list:
     """
     Returns a list of messages for the selected room.
 
@@ -274,7 +293,7 @@ def get_messages(room_id: ObjectId) -> list:
     return list(messages_collection.find({"room_id": room_id}))
 
 
-def save_message(room_id: ObjectId, text: str, sender: str) -> None:
+def save_message(room_id: int, text: str, sender: str) -> None:
     """
     Save a message to the database after emitting an event of SocketIO.
 

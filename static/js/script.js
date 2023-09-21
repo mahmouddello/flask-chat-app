@@ -67,6 +67,7 @@ $(document).ready(function () {
         event.preventDefault()
         if (validateJoinRoomModal()) {
             let room_id_input = $("#roomID").val()
+            console.log(room_id_input)
             ajax_join_room_post(room_id_input)
         }
     });

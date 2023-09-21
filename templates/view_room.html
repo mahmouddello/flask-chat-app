@@ -7,6 +7,8 @@
                 <div class="chat-box">
                     <div class="chat-header">
                         <strong class="mb-1">{{ room.name }}</strong>
+                        <button class="btn btn-primary">Edit Room</button>
+                        <button class="btn btn-danger">Leave Room</button>
                     </div>
                     <hr>
                     <div class="messages" style="max-height: 400px; overflow-y: auto;">
@@ -32,7 +34,7 @@
             </div>
         </div>
         <div id="username_data" data-username="{{ username }}" style="display: none"></div>
-        <div id="room_id_data" data-room_id="{{ room._id }}" style="display: none"></div>
+        <div id="room_id_data" data-room_id="{{ room.room_id }}" style="display: none"></div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
     <script src="{{ url_for('static', filename='js/socketio_events.js') }}"></script>
