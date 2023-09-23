@@ -249,3 +249,57 @@ let ajax_leave_room = (button) => {
         }
     });
 }
+
+let ajax_change_room_name = (new_room_name, room_id) => {
+    const user_data = {
+        "new_room_name": new_room_name,
+        "room_id": room_id
+    }
+
+    let baseUrl = "http://127.0.0.1:5000/chat/my_rooms/";
+    $.ajax({
+        type: "POST",
+        contentType: "application/json",
+        url: `${baseUrl}${room_id}/edit`,
+        data: JSON.stringify(user_data),
+        dataType: "json",
+        cache: false,
+        timeout: 4000,
+        success: function (data) {
+            if (data.status) {
+                customPopoutAlert("Edited Room Name Successfully", "success")
+                window.location.href = `${baseUrl}`
+
+            } else {
+                customPopoutAlert("Failed to update room name.", "error")
+            }
+        }
+    });
+}
+
+let ajax_kick_member = (button) => {
+    const room_id = button.getAttribute("data-room-id");
+    const username = button.getAttribute("data-username");
+    const user_data = {
+        "room_id": room_id,
+        "username": username
+    };
+    $.ajax({
+        type: "POST",
+        contentType: "application/json",
+        url: "http://127.0.0.1:5000/chat/kick_member",
+        data: JSON.stringify(user_data),
+        dataType: "json",
+        cache: false,
+        timeout: 4000,
+        success: function (data) {
+            if (data.status) {
+                customPopoutAlert("Kicked Member Successfully", "success")
+                let baseUrl = "http://127.0.0.1:5000/chat/my_rooms/";
+                window.location.href = `${baseUrl}${room_id}/edit`
+            } else {
+                customPopoutAlert("Failed to kick member", "error")
+            }
+        }
+    });
+}

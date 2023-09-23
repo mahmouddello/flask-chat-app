@@ -195,3 +195,18 @@ function validateChangePasswordModalForm() {
 
     return initializeFormValidation("#changePasswordModalForm", rules, messages)
 }
+
+function validateNewRoomNameForm() {
+    const rules = {
+        new_room_name: {
+            required: true
+        }
+    }
+    const messages = {
+        new_room_name: {
+            required: "New Room name can't be blank!"
+        }
+    }
+
+    return initializeFormValidation("#newRoomNameForm", rules, messages)
+}

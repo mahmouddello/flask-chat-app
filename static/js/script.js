@@ -40,6 +40,10 @@ $(document).ready(function () {
         $("#changePasswordModalForm").submit()
     })
 
+    $("#saveRoomName").click(function () {
+        $("#newRoomNameForm").submit()
+    })
+
     // Register Form
     $("#registerForm").submit(function (event) {
         event.preventDefault();
@@ -108,6 +112,16 @@ $(document).ready(function () {
             let old_password = $("#oldPassword").val()
             let new_password = $("#newPassword").val()
             ajax_change_password(old_password, new_password)
+        }
+    })
+
+    // Change Room Name Form
+    $("#newRoomNameForm").submit(function (event) {
+        event.preventDefault()
+        if (validateNewRoomNameForm()) {
+            let new_room_name = $("#new_room_name").val()
+            let room_id = $("#room_id_div").text()
+            ajax_change_room_name(new_room_name, room_id)
         }
     })
 

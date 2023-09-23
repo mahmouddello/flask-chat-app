@@ -5,13 +5,13 @@ from pymongo.errors import PyMongoError
 from database import (
     get_rooms_for_user, get_room, get_messages, get_room_members,
     join_room_member, save_room,
-    is_room_member, is_admin, admin_required, delete_room_member
+    is_room_member, is_admin, admin_required, delete_room_member, db_kick_member, db_change_room_name
 )
 
 chat = Blueprint("chat", __name__, url_prefix="/chat")
 
 
-@chat.route(rule="/my_rooms")
+@chat.route(rule="/my_rooms/")
 @login_required
 def my_rooms() -> str:
     """
@@ -52,13 +52,18 @@ def view_room(room_id: int) -> str:
     return abort(404)
 
 
-@chat.route("/my_rooms/<int:room_id>/edit")
+@chat.route("/my_rooms/<int:room_id>/edit", methods=["GET", "POST"])
 @login_required
 @admin_required
 def edit_room(room_id: int):
+    if request.method == "POST":
+        data = request.get_json(force=True)
+        new_room_name = data.get("new_room_name")
+        room_id = int(data.get("room_id"))
+        return db_change_room_name(room_id=room_id, new_room_name=new_room_name)
+
     room = get_room(room_id)
     room_members = get_room_members(room_id)
-    print(room_members)
     return render_template(
         "edit_room.html",
         room=room,
@@ -116,3 +121,15 @@ def leave_room() -> Response:
     room_id = int(data.get("room_id"))
     username = data.get("username")
     return delete_room_member(room_id=room_id, username=username)
+
+
+@chat.route(rule="/kick_member", methods=["POST"])
+def kick_member():
+    """
+    Route to handle kicking member.
+    :return:
+    """
+    data = request.get_json(force=True)
+    room_id = int(data.get("room_id"))
+    username = data.get("username")
+    return db_kick_member(room_id=room_id, username=username)

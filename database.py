@@ -197,6 +197,7 @@ def admin_required(func: Callable[..., Any]) -> Callable[..., Any]:
     :param func: Decorated function
     :return:
     """
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         room_id = kwargs.get("room_id")
@@ -242,6 +243,23 @@ def delete_room_member(room_id: int, username: str) -> Response:
         return jsonify({"status": True})
     except PyMongoError:
         return jsonify({"status": False})
+
+
+def db_kick_member(room_id: int, username: str) -> Response:
+    """
+    Responsible about kicking user from the room.
+    :param room_id: selected room's id.
+    :param username: current user's (admin) username.
+    :return: Response
+    """
+    try:
+        room_members_collection.delete_one({
+            "room_id": room_id, "username": username
+        })
+    except PyMongoError:
+        return jsonify({"status": False})
+    else:
+        return jsonify({"status": True})
 
 
 # Room Operations
@@ -348,6 +366,26 @@ def get_next_sequence_value(sequence_name: str) -> int:
         return_document=True
     )
     return sequence_doc["sequence_value"]
+
+
+def db_change_room_name(room_id: int, new_room_name: str):
+    try:
+        # Rooms collection
+        rooms_collection.find_one_and_update(
+            {"room_id": room_id},
+            {"$set": {"name": new_room_name}}
+        )
+
+        # Room members collection
+        room_members_collection.update_many(
+            {"room_id": room_id},
+            {"$set": {"room_name": new_room_name}}
+        )
+    except PyMongoError:
+        return jsonify({"status": False})
+
+    else:
+        return jsonify({"status": True})
 
 
 # Messages
