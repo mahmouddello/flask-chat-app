@@ -1,6 +1,13 @@
 # flask-chat-app
 A real time messaging chat application built with Flask, SocketIO and MongoDB.
 Minimal, easy to use and modify web based chat application, built with the power of Flask.
+
+## Features
+* Login and Registration.
+* Users can update username, email and their passwords.
+* Users can create or join a room, the user who creates a room has admin abilities to edit and kick members from the room.
+* Simple and friendly UI built with Bootstrap5.
+
 ## Prerequisites
 * Clone the repository ```git clone https://github.com/mahmouddello/flask-chat-app```
 * Cd into the project directory `cd ./flask-chat-app`
