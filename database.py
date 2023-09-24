@@ -3,7 +3,7 @@ from datetime import datetime
 from functools import wraps
 from typing import Callable, Any
 from random import choice
-from flask import jsonify, Response, abort
+from flask import jsonify, Response, abort, url_for
 from flask_login import current_user, logout_user
 from pymongo.mongo_client import MongoClient
 from pymongo.errors import DuplicateKeyError, PyMongoError
@@ -62,11 +62,18 @@ def save_user(username: str, email: str, password: str) -> Response:
 
         })
     except DuplicateKeyError:
-        return jsonify({"status": False})
+        return jsonify({
+            "status": False,
+            "message": "Username has already been taken! try different one"
+        })
 
     else:
         logout_user()
-        return jsonify({"status": True})
+        return jsonify({
+            "status": True,
+            "message": "Registration Success! Redirecting to the login page",
+            "redirectUrl": url_for("authentication.login")
+        })
 
 
 def db_change_username(old_username: str, new_username: str) -> Response:
@@ -106,15 +113,27 @@ def db_change_username(old_username: str, new_username: str) -> Response:
         )
 
     except DuplicateKeyError:
-        return jsonify({"status": "Duplicate"})
+        return jsonify({
+            "status": False,
+            "message": "This username already in use, try different one!",
+            "alertDiv": "#usernameAlert"
+        })
 
-    except PyMongoError as e:
-        print(e)
-        return jsonify({"status": False})
+    except PyMongoError:
+        return jsonify({
+            "status": False,
+            "message": "An error occurred when writing to the database, try again later!",
+            "alertDiv": "#usernameAlert"
+        })
 
     else:
         logout_user()
-        return jsonify({"status": True})
+        return jsonify({
+            "status": True,
+            "message": "Changed username successfully",
+            "alertDiv": "#usernameAlert",
+            "redirectUrl": url_for("home")
+        })
 
 
 def db_change_email(username: str, new_email: str) -> Response:
@@ -133,13 +152,19 @@ def db_change_email(username: str, new_email: str) -> Response:
             {"username": username},
             {"$set": {"email": new_email}}
         )
-    except PyMongoError as e:
-        print(e)
-        return jsonify({"status": False})
+    except PyMongoError:
+        return jsonify({
+            "status": False,
+            "message": "An error occurred, try again later!",
+            "alertDiv": "#emailAlert"
+        })
 
     else:
         logout_user()
-        return jsonify({"status": True})
+        return jsonify({
+            "status": True,
+            "redirectUrl": url_for("home")
+        })
 
 
 def db_change_password(username: str, new_password: str) -> Response:
@@ -157,13 +182,19 @@ def db_change_password(username: str, new_password: str) -> Response:
             {"username": username},
             {"$set": {"password": generate_password_hash(new_password)}}
         )
-    except PyMongoError as e:
-        print(e)
-        return jsonify({"status": False})
+    except PyMongoError:
+        return jsonify({
+            "status": False,
+            "alertDiv": "#passwordAlert",
+            "message": "An error occurred, try again later!"
+        })
 
     else:
         logout_user()
-        return jsonify({"status": True})
+        return jsonify({
+            "status": True,
+            "redirectUrl": url_for("home")
+        })
 
 
 def is_room_member(room_id: int, username: str) -> int:
@@ -180,6 +211,7 @@ def is_room_member(room_id: int, username: str) -> int:
 def is_admin(room_id: int, username: str) -> int:
     """
     Checks if the user is admin.
+
     :param room_id: room's id.
     :param username: current user's username.
     :return: Boolean state of 0 or 1 (True or False)
@@ -195,7 +227,7 @@ def admin_required(func: Callable[..., Any]) -> Callable[..., Any]:
     """
     Decorator to prevent accessing some routes for non-admin users.
     :param func: Decorated function
-    :return:
+    :return: Callable[..., Any]
     """
 
     @wraps(func)
@@ -216,6 +248,7 @@ def delete_room_member(room_id: int, username: str) -> Response:
     """
     Deletes member from a room, if he is admin and there is other members in the room; it transfers admin abilities
     to a random user. if he is the only member in the room and the admin leaves, the room also get deleted.
+
     :param room_id: current room's id.
     :param username: current logged-in user's username.
     :return: Response
@@ -240,14 +273,22 @@ def delete_room_member(room_id: int, username: str) -> Response:
         # Delete the user
         room_members_collection.delete_one({"room_id": room_id, "username": username})
 
-        return jsonify({"status": True})
+        return jsonify({
+            "status": True,
+            "message": "Leaved Room Successfully",
+            "redirectUrl": url_for("chat.my_rooms")
+        })
     except PyMongoError:
-        return jsonify({"status": False})
+        return jsonify({
+            "status": False,
+            "message": "Failed to leave!"
+        })
 
 
 def db_kick_member(room_id: int, username: str) -> Response:
     """
     Responsible about kicking user from the room.
+
     :param room_id: selected room's id.
     :param username: current user's (admin) username.
     :return: Response
@@ -341,7 +382,7 @@ def join_room_member(room_id: int, room_name: str, username: str, added_by="Hims
     :param room_id: The id of the room to join.
     :param room_name: The name of the room.
     :param username: The username of the user joining the room.
-    :param added_by: The username of the user who is adding the member (default is "Himself").
+    :param added_by: The username of the user who is added the member (default is "Himself").
     :param is_room_admin: Whether the member should have admin privileges in the room (default is False).
     :return: Response
     """
@@ -351,7 +392,11 @@ def join_room_member(room_id: int, room_name: str, username: str, added_by="Hims
     room_members = get_room_members(room_id=room_id)
     room_members = [member["username"] for member in room_members]
     if current_user.username in room_members:
-        return jsonify({"status": "Joined"})
+        return jsonify({
+            "status": True,
+            "message": "Joined Room Successfully",
+            "redirectUrl": url_for("chat.my_rooms")
+        })
 
 
 def get_next_sequence_value(sequence_name: str) -> int:
@@ -368,7 +413,13 @@ def get_next_sequence_value(sequence_name: str) -> int:
     return sequence_doc["sequence_value"]
 
 
-def db_change_room_name(room_id: int, new_room_name: str):
+def db_change_room_name(room_id: int, new_room_name: str) -> Response:
+    """
+    Change room's name in the database.
+    :param room_id: room's id.
+    :param new_room_name: new room name to be set.
+    :return: Response
+    """
     try:
         # Rooms collection
         rooms_collection.find_one_and_update(
@@ -382,10 +433,17 @@ def db_change_room_name(room_id: int, new_room_name: str):
             {"$set": {"room_name": new_room_name}}
         )
     except PyMongoError:
-        return jsonify({"status": False})
+        return jsonify({
+            "status": False,
+            "message": "Failed to change room name!"
+        })
 
     else:
-        return jsonify({"status": True})
+        return jsonify({
+            "status": True,
+            "message": "Changed Room name successfully!",
+            "redirectUrl": url_for("chat.view_room", room_id=room_id)
+        })
 
 
 # Messages

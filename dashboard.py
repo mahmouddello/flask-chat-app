@@ -5,7 +5,7 @@ from database import db_change_username, db_change_email, db_change_password, ge
 dashboard_operations = Blueprint("dashboard_operations", __name__, url_prefix="/edit_credentials")
 
 
-@dashboard_operations.route(rule="/change_username", methods=["POST"])
+@dashboard_operations.route(rule="/change_username/", methods=["POST"])
 def change_username() -> Response:
     """
     Accepts a POST request to change a user's username,
@@ -19,10 +19,14 @@ def change_username() -> Response:
     password = data.get("password")
     if user_object.check_password(password_input=password):
         return db_change_username(old_username=user_object.username, new_username=new_username)
-    return jsonify({"status": "Invalid Password"})
+    return jsonify({
+        "status": False,
+        "message": "Invalid Password!",
+        "alertDiv": "#usernameAlert"
+    })
 
 
-@dashboard_operations.route(rule="/change_email", methods=["POST"])
+@dashboard_operations.route(rule="/change_email/", methods=["POST"])
 def change_email() -> Response:
     """
     Handles a POST request to update a user's email address, checks for the same email,
@@ -36,14 +40,22 @@ def change_email() -> Response:
     password = data.get("password")
 
     if user_object.email == new_email:
-        return jsonify({"status": "Same Email"})
+        return jsonify({
+            "status": False,
+            "message": "You can't change your email to your existing one!",
+            "alertDiv": "#emailAlert"
+        })
 
     if user_object.check_password(password_input=password):
         return db_change_email(username=user_object.username, new_email=new_email)
-    return jsonify({"status": False})
+    return jsonify({
+        "status": False,
+        "message": "Invalid Password!",
+        "alertDiv": "#emailAlert"
+    })
 
 
-@dashboard_operations.route(rule="/change_password", methods=["POST"])
+@dashboard_operations.route(rule="/change_password/", methods=["POST"])
 def change_password() -> Response:
     """
     Manages a POST request to modify a user's password, checks for the same password,
@@ -58,9 +70,17 @@ def change_password() -> Response:
 
     # Same Password
     if old_password == new_password:
-        return jsonify({"status": "Same Password"})
+        return jsonify({
+            "status": False,
+            "message": "You can't change your password to the existing one!",
+            "alertDiv": "#passwordAlert"
+})
 
     if not user_object.check_password(password_input=old_password):
-        return jsonify({"status": "Invalid Password"})
+        return jsonify({
+            "status": False,
+            "message": "Invalid Password!",
+            "alertDiv": "#passwordAlert"
+        })
 
     return db_change_password(username=user_object.username, new_password=new_password)

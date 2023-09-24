@@ -100,7 +100,7 @@ function validateJoinRoomModal() {
         }
     };
 
-    return initializeFormValidation("#join-room-modal-form", rules, messages);
+    return initializeFormValidation("#joinRoomModalForm", rules, messages);
 }
 
 // Create Room Modal Validation
@@ -117,7 +117,7 @@ function validateCreateRoomModal() {
         }
     };
 
-    return initializeFormValidation("#create-room-modal-form", rules, messages);
+    return initializeFormValidation("#createRoomModalForm", rules, messages);
 }
 
 function validateChangeUsernameModalForm() {
@@ -198,12 +198,12 @@ function validateChangePasswordModalForm() {
 
 function validateNewRoomNameForm() {
     const rules = {
-        new_room_name: {
+        newRoomName: {
             required: true
         }
     }
     const messages = {
-        new_room_name: {
+        newRoomName: {
             required: "New Room name can't be blank!"
         }
     }

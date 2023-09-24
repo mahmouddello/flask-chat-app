@@ -12,7 +12,7 @@
                             <a href="{{ url_for('chat.edit_room', room_id=room.room_id) }}" class="btn btn-primary">Edit
                                 Room</a>
                         {% endif %}
-                        <button class="btn btn-danger" onclick="ajax_leave_room(this)"
+                        <button class="btn btn-danger" onclick="ajaxLeaveRoom(this)"
                                 data-room-id="{{ room.room_id }}"
                                 data-username="{{ username }}">Leave Room
                         </button>
@@ -44,5 +44,5 @@
         <div id="room_id_data" data-room_id="{{ room.room_id }}" style="display: none"></div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
-    <script src="{{ url_for('static', filename='js/socketio_events.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/socketioEvents.js') }}"></script>
 {% endblock %}

@@ -20,12 +20,12 @@ $(document).ready(function () {
 
     // button bindings
 
-    $('#join_room_modal_btn').click(function () {
-        $('#join-room-modal-form').submit();
+    $('#joinRoomModalBtn').click(function () {
+        $('#joinRoomModalForm').submit();
     });
 
-    $('#create-room-modal-button').click(function () {
-        $('#create-room-modal-form').submit();
+    $('#createRoomModalBtn').click(function () {
+        $('#createRoomModalForm').submit();
     });
 
     $('#saveUsername').click(function () {
@@ -52,7 +52,7 @@ $(document).ready(function () {
             username = $("#username").val()
             email = $("#email").val()
             password = $("#password").val()
-            ajax_register_post(username, email, password)
+            ajaxRegister(username, email, password)
         }
     });
 
@@ -62,26 +62,25 @@ $(document).ready(function () {
         if (validateLoginForm()) {
             let username = $("#username").val()
             let password = $("#password").val()
-            ajax_login_post(username, password)
+            ajaxLogin(username, password)
         }
     });
 
     // Join Room Modal Form
-    $("#join-room-modal-form").submit(function (event) {
+    $("#joinRoomModalForm").submit(function (event) {
         event.preventDefault()
         if (validateJoinRoomModal()) {
-            let room_id_input = $("#roomID").val()
-            console.log(room_id_input)
-            ajax_join_room_post(room_id_input)
+            let roomIdInput = $("#roomID").val()
+            ajaxJoinRoom(roomIdInput)
         }
     });
 
     // Create Room Modal Form
-    $("#create-room-modal-form").submit(function (event) {
+    $("#createRoomModalForm").submit(function (event) {
         event.preventDefault()
         if (validateCreateRoomModal()) {
-            let room_name_input = $("#roomName").val()
-            ajax_create_room_post(room_name_input)
+            let roomNameInput = $("#roomName").val()
+            ajaxCreateRoom(roomNameInput)
         }
     });
 
@@ -89,9 +88,9 @@ $(document).ready(function () {
     $("#changeUsernameModalForm").submit(function (event) {
         event.preventDefault();
         if (validateChangeUsernameModalForm()) {
-            let new_username = $("#newUsername").val()
+            let newUsername = $("#newUsername").val()
             let password = $("#existingPassword1").val()
-            ajax_change_username(new_username, password)
+            ajaxChangeUsername(newUsername, password)
         }
     })
 
@@ -101,7 +100,7 @@ $(document).ready(function () {
         if (validateChangeEmailModalForm()) {
             let email = $("#newEmail").val()
             let password = $("#existingPassword2").val()
-            ajax_change_email(email, password)
+            ajaxChangeEmail(email, password)
         }
     })
 
@@ -111,7 +110,7 @@ $(document).ready(function () {
         if (validateChangePasswordModalForm()) {
             let old_password = $("#oldPassword").val()
             let new_password = $("#newPassword").val()
-            ajax_change_password(old_password, new_password)
+            ajaxChangePassword(old_password, new_password)
         }
     })
 
@@ -119,9 +118,9 @@ $(document).ready(function () {
     $("#newRoomNameForm").submit(function (event) {
         event.preventDefault()
         if (validateNewRoomNameForm()) {
-            let new_room_name = $("#new_room_name").val()
-            let room_id = $("#room_id_div").text()
-            ajax_change_room_name(new_room_name, room_id)
+            let newRoomName = $("#newRoomName").val()
+            let roomId = $("#roomIdDiv").text()
+            ajaxChangeRoomName(newRoomName, roomId)
         }
     })
 
@@ -149,7 +148,7 @@ let navbarActivating = () => {
     });
 }
 
-let customPopoutAlert = (message, status, alertDivId = "#alert") => {
+let customPopoutAlert = (message, status, alertDivId) => {
     // Custom Alert Using Bootstrap
     let alertDiv = $(alertDivId)
     if (status === "success") {
@@ -157,7 +156,7 @@ let customPopoutAlert = (message, status, alertDivId = "#alert") => {
         alertDiv.text(message)
         setTimeout(function () {
             alertDiv.fadeOut("slow");
-        }, 2000);
+        }, 1000);
     } else {
         alertDiv.removeClass("fade out").addClass("alert alert-danger").show();
         alertDiv.text(message);
@@ -166,6 +165,6 @@ let customPopoutAlert = (message, status, alertDivId = "#alert") => {
             alertDiv.fadeOut("slow", function () {
                 alertDiv.empty().removeClass(); // Clear the message and remove classes after fading out
             });
-        }, 2000);
+        }, 1000);
     }
 }

@@ -5,7 +5,7 @@ from database import get_user, save_user
 authentication: Blueprint = Blueprint("authentication", __name__, url_prefix="/authentication")
 
 
-@authentication.route(rule="/login", methods=["GET", "POST"])
+@authentication.route(rule="/login/", methods=["GET", "POST"])
 def login() -> Response | str:
     """
      Manages the login operation logic, handling both GET and POST requests,
@@ -17,23 +17,27 @@ def login() -> Response | str:
         return redirect(url_for("home"))
 
     if request.method == "POST":
-        try:
-            data = request.get_json(force=True)
-            username = data.get("username")
-            password = data.get("password")
-            user_object = get_user(username)  # get the user object by username
-            if user_object and user_object.check_password(password_input=password):
-                login_user(user_object)
-                return jsonify({"status": True})
-            else:
-                return jsonify({"status": False})
-        except Exception as e:
-            print(e)
-            return jsonify({"status": False})
+        data = request.get_json(force=True)
+        username = data.get("username")
+        password = data.get("password")
+        user_object = get_user(username)  # get the user object by username
+        if user_object and user_object.check_password(password_input=password):
+            login_user(user_object)
+            response_data = {
+                "status": True,
+                "message": "Login Success!",
+                "redirectUrl": url_for("home")
+            }
+        else:
+            response_data = {
+                "status": False,
+                "message": "Bad Credentials"
+            }
+        return jsonify(response_data)
     return render_template("login.html")
 
 
-@authentication.route(rule="/register", methods=["GET", "POST"])
+@authentication.route(rule="/register/", methods=["GET", "POST"])
 def register() -> Response | str:
     """
     Handles the registration operation logic, including GET and POST requests,

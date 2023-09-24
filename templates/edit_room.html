@@ -5,13 +5,13 @@
         <div class="row">
             <div class="col-md-12">
                 <h1 class="mb-3">Edit Room</h1>
-                <div class="d-none" id="room_id_div">{{ room.room_id }}</div>
+                <div class="d-none" id="roomIdDiv">{{ room.room_id }}</div>
                 <form  id="newRoomNameForm"
                       action="{{ url_for('chat.edit_room', room_id=room.room_id) }}" method="post">
 
                     <div class="form-group mb-3">
-                        <label for="new_room_name">Room name</label>
-                        <input type="text" name="new_room_name" id="new_room_name" class="form-control"
+                        <label for="newRoomName">Room name</label>
+                        <input type="text" name="newRoomName" id="newRoomName" class="form-control"
                                value="{{ room.name }}">
                     </div>
 
@@ -32,7 +32,7 @@
                                 </td>
                                 <td>
                                     {% if not member.is_room_admin %}
-                                        <button onclick="ajax_kick_member(this)" type="submit" name="kick_member"
+                                        <button onclick="ajaxKickMember(this)" type="submit" name="kick_member"
                                                 data-username="{{ member.username }}"
                                                 data-room-id="{{ room.room_id }}"
                                                 class="btn btn-danger">Kick

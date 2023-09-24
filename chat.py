@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, jsonify, Response, abort
+from flask import Blueprint, render_template, request, jsonify, Response, abort, url_for
 from flask_login import current_user, login_required
 from pymongo.errors import PyMongoError
 
@@ -52,14 +52,15 @@ def view_room(room_id: int) -> str:
     return abort(404)
 
 
-@chat.route("/my_rooms/<int:room_id>/edit", methods=["GET", "POST"])
+@chat.route("/my_rooms/<int:room_id>/edit/", methods=["GET", "POST"])
 @login_required
 @admin_required
-def edit_room(room_id: int):
+def edit_room(room_id: int) -> str | Response:
     if request.method == "POST":
         data = request.get_json(force=True)
         new_room_name = data.get("new_room_name")
         room_id = int(data.get("room_id"))
+        print("REACHED PYTHON ROUTE")
         return db_change_room_name(room_id=room_id, new_room_name=new_room_name)
 
     room = get_room(room_id)
@@ -71,7 +72,7 @@ def edit_room(room_id: int):
         logged_in=current_user.is_authenticated)
 
 
-@chat.route(rule="/join_room", methods=["POST"])
+@chat.route(rule="/join_room/", methods=["POST"])
 def join_room() -> Response:
     """
     Responsible about joining room logic, handles different exceptions;
@@ -85,16 +86,22 @@ def join_room() -> Response:
     try:
         room_name = room["name"]
     except TypeError:
-        return jsonify({"status": "No Room Found"})  # handle room not found
+        return jsonify({
+            "status": False,
+            "message": "No Room Found!"
+        })  # handle room not found
     else:
         room_members = get_room_members(room_id=room_id)
         room_members = [member["username"] for member in room_members]
         if current_user.username in room_members:
-            return jsonify({"status": "Already Room Member"})
+            return jsonify({
+                "status": False,
+                "message": "Already Room Member!"
+            })
         return join_room_member(room_id=room_id, username=current_user.username, room_name=room_name)
 
 
-@chat.route(rule="/create_room", methods=["POST"])
+@chat.route(rule="/create_room/", methods=["POST"])
 def create_room():
     """
     Responsible about creating room logic.
@@ -106,28 +113,35 @@ def create_room():
     try:
         save_room(room_name=room_name, created_by=current_user.username)
     except PyMongoError:
-        return jsonify({"status": False})
+        return jsonify({
+            "status": False,
+            "message": "An error occurred when trying to write to the database!"})
     else:
-        return jsonify({"status": True})
+        return jsonify({
+            "status": True,
+            "message": "Created Room Successfully :)",
+            "redirectUrl": url_for("chat.my_rooms")
+        })
 
 
-@chat.route(rule="/leave_room", methods=["POST"])
+@chat.route(rule="/leave_room/", methods=["POST"])
 def leave_room() -> Response:
     """
     Route to handle leave room functionality.
     :return: Response
     """
     data = request.get_json(force=True)
+    print(data.get("room_id"))
     room_id = int(data.get("room_id"))
     username = data.get("username")
     return delete_room_member(room_id=room_id, username=username)
 
 
 @chat.route(rule="/kick_member", methods=["POST"])
-def kick_member():
+def kick_member() -> Response:
     """
     Route to handle kicking member.
-    :return:
+    :return: Response
     """
     data = request.get_json(force=True)
     room_id = int(data.get("room_id"))

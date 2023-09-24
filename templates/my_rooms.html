@@ -41,13 +41,13 @@
              aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <div style="margin: 0 auto; margin-top: 5px" id="alert"></div>
+                    <div style="margin: 5px auto 0;" id="alert"></div>
                     <div class="modal-header">
                         <h5 class="modal-title" id="joinRoomModalLabel">Join Room</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="{{ url_for('chat.join_room') }}" id="join-room-modal-form" method="post">
+                        <form action="{{ url_for('chat.join_room') }}" id="joinRoomModalForm" method="post">
                             <div class="mb-3">
                                 <div class="error"></div>
                                 <label for="roomID" class="form-label">Room ID:</label>
@@ -57,7 +57,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-                        <button id="join_room_modal_btn" type="button" class="btn btn-success">Join</button>
+                        <button id="joinRoomModalBtn" type="button" class="btn btn-success">Join</button>
                     </div>
                 </div>
             </div>
@@ -68,13 +68,13 @@
              aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <div style="margin: 0 auto; margin-top: 5px" id="alert"></div>
+                    <div style="margin: 5px auto 0;" id="alert"></div>
                     <div class="modal-header">
                         <h5 class="modal-title" id="createRoomModalLabel">Create Room</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="{{ url_for('chat.create_room') }}" id="create-room-modal-form" method="post">
+                        <form action="{{ url_for('chat.create_room') }}" id="createRoomModalForm" method="post">
                             <div class="mb-3">
                                 <div class="error"></div>
                                 <label for="roomName" class="form-label">Room Name:</label>
@@ -84,7 +84,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-                        <button id="create-room-modal-button" type="button" class="btn btn-success">Create</button>
+                        <button id="createRoomModalBtn" type="button" class="btn btn-success">Create</button>
                     </div>
                 </div>
             </div>

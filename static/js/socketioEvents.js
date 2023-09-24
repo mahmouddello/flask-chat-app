@@ -2,7 +2,6 @@ $(document).ready(function () {
     const username = $('#username_data').data('username');
     const room_id = $('#room_id_data').data('room_id');
 
-    console.log(username, room_id)
 
     const socket = io.connect("http://127.0.0.1:5000") // socket connection
     // on connection
@@ -37,12 +36,10 @@ $(document).ready(function () {
             username: username,
             room_id: room_id
         })
-        console.log("Leave triggered")
     };
 
     // sent message, handling from python backend
     socket.on("receive_message", function (data) {
-        console.log(data)
         const newNode = document.createElement("li")
         newNode.className = "d-flex"
         newNode.innerHTML = `<b>${data.username}:&nbsp;</b> ${data.message}`
@@ -51,7 +48,6 @@ $(document).ready(function () {
 
     // join announcement handling
     socket.on("join_room_announcement", function (data) {
-        console.log(data)
         const newNode = document.createElement("li")
         newNode.className = "d-flex"
         newNode.innerHTML = `<b>${data.username}&nbsp;</b>has joined the chat`
