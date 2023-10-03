@@ -147,6 +147,10 @@ cover/
 *.mo
 *.pot
 
+# Vscode
+.vscode
+\vscode
+
 # Django stuff:
 *.log
 local_settings.py
@@ -214,6 +218,8 @@ celerybeat.pid
 # Environments
 .env
 .venv
+.chatenv
+chatenv/
 env/
 venv/
 ENV/

@@ -1,10 +1,9 @@
 from flask import Blueprint, render_template, request, jsonify, Response, abort, url_for
 from flask_login import current_user, login_required
 from pymongo.errors import PyMongoError
-
 from database import (
     get_rooms_for_user, get_room, get_messages, get_room_members,
-    join_room_member, save_room,
+    join_room_member, save_room, fetch_latest_message,
     is_room_member, is_admin, admin_required, delete_room_member, db_kick_member, db_change_room_name
 )
 
@@ -20,10 +19,12 @@ def my_rooms() -> str:
     :returns: Renders my_rooms.html template.
     :rtype: str
     """
+    rooms = get_rooms_for_user(current_user.username)
+
     return render_template(
         template_name_or_list="my_rooms.html",
         logged_in=current_user.is_authenticated,
-        rooms=get_rooms_for_user(username=current_user.username)
+        rooms=rooms
     )
 
 
@@ -76,7 +77,7 @@ def edit_room(room_id: int) -> str | Response:
 def join_room() -> Response:
     """
     Responsible about joining room logic, handles different exceptions;
-    like if user is already in this room, or the room id is invalid.
+    like if a user is already in this room, or the room id is invalid.
 
     :return: Response
     """
@@ -89,16 +90,15 @@ def join_room() -> Response:
         return jsonify({
             "status": False,
             "message": "No Room Found!"
-        })  # handle room not found
-    else:
-        room_members = get_room_members(room_id=room_id)
-        room_members = [member["username"] for member in room_members]
-        if current_user.username in room_members:
-            return jsonify({
-                "status": False,
-                "message": "Already Room Member!"
-            })
-        return join_room_member(room_id=room_id, username=current_user.username, room_name=room_name)
+        })  # handle room isn't found
+    room_members = get_room_members(room_id=room_id)
+    room_members = [member["username"] for member in room_members]
+    if current_user.username in room_members:
+        return jsonify({
+            "status": False,
+            "message": "Already Room Member!"
+        })
+    return join_room_member(room_id=room_id, username=current_user.username, room_name=room_name)
 
 
 @chat.route(rule="/create_room/", methods=["POST"])
@@ -116,12 +116,11 @@ def create_room():
         return jsonify({
             "status": False,
             "message": "An error occurred when trying to write to the database!"})
-    else:
-        return jsonify({
-            "status": True,
-            "message": "Created Room Successfully :)",
-            "redirectUrl": url_for("chat.my_rooms")
-        })
+    return jsonify({
+        "status": True,
+        "message": "Created Room Successfully :)",
+        "redirectUrl": url_for("chat.my_rooms")
+    })
 
 
 @chat.route(rule="/leave_room/", methods=["POST"])

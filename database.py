@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 from functools import wraps
-from typing import Callable, Any
+from typing import Callable, Any, Dict
 from random import choice
 from flask import jsonify, Response, abort, url_for
 from flask_login import current_user, logout_user
@@ -158,7 +158,6 @@ def db_change_email(username: str, new_email: str) -> Response:
             "message": "An error occurred, try again later!",
             "alertDiv": "#emailAlert"
         })
-
     else:
         logout_user()
         return jsonify({
@@ -188,7 +187,6 @@ def db_change_password(username: str, new_password: str) -> Response:
             "alertDiv": "#passwordAlert",
             "message": "An error occurred, try again later!"
         })
-
     else:
         logout_user()
         return jsonify({
@@ -246,8 +244,9 @@ def admin_required(func: Callable[..., Any]) -> Callable[..., Any]:
 
 def delete_room_member(room_id: int, username: str) -> Response:
     """
-    Deletes member from a room, if he is admin and there is other members in the room; it transfers admin abilities
-    to a random user. if he is the only member in the room and the admin leaves, the room also get deleted.
+    Deletes member from a room, if he is admin and there is other members in the room; 
+    it transfers admin abilitiesto a random user. 
+    if he is the only member in the room and the admin leaves, the room also get deleted.
 
     :param room_id: current room's id.
     :param username: current logged-in user's username.
@@ -318,7 +317,8 @@ def get_room(room_id: int) -> dict:
 
 def save_room(room_name: str, created_by: str) -> int:
     """
-    Allows a user to create a room, giving them admin access and automatically adding them to the room.
+    Allows a user to create a room; giving them admin access,
+    and automatically adding them to the room.
 
     :param room_name: The name of the room to be created.
     :param created_by: The username of the user who is creating the room.
@@ -345,8 +345,8 @@ def add_room_member(room_id: int, room_name: str, username: str, added_by, is_ro
     :param room_id: The id of the room to which the member will be added.
     :param room_name: The name of the room.
     :param username: The username of the member to be added.
-    :param added_by: The username of the user who is adding the member (default is "Himself").
-    :param is_room_admin: Whether the member should have admin privileges in the room (default is False).
+    :param added_by: The username of the user who is adding the member.
+    :param is_room_admin: Whether the member should have admin privileges in the room.
     :return:
     """
     room_members_collection.insert_one(
@@ -382,8 +382,8 @@ def join_room_member(room_id: int, room_name: str, username: str, added_by="Hims
     :param room_id: The id of the room to join.
     :param room_name: The name of the room.
     :param username: The username of the user joining the room.
-    :param added_by: The username of the user who is added the member (default is "Himself").
-    :param is_room_admin: Whether the member should have admin privileges in the room (default is False).
+    :param added_by: The username of the user who is added the member.
+    :param is_room_admin: Whether the member should have admin privileges in the room.
     :return: Response
     """
     room_members_collection.insert_one(
@@ -437,7 +437,6 @@ def db_change_room_name(room_id: int, new_room_name: str) -> Response:
             "status": False,
             "message": "Failed to change room name!"
         })
-
     else:
         return jsonify({
             "status": True,
@@ -462,7 +461,7 @@ def save_message(room_id: int, text: str, sender: str) -> None:
     """
     Save a message to the database after emitting an event of SocketIO.
 
-    :param room_id:  The id of the room where the message is sent.
+    :param room_id: The id of the room where the message is sent.
     :param text: The content of the message.
     :param sender: The username of the message sender.
     :return: None
@@ -473,3 +472,29 @@ def save_message(room_id: int, text: str, sender: str) -> None:
         "sender": sender,
         "create_at": datetime.now()
     })
+
+
+def fetch_latest_message(room_id: int) -> dict[str, Any] | str:
+    """
+    Returns latest message document sent to the room.
+    
+    :prarm room_id: The id of the room to fetch the message.
+    :return: Message document.
+    """
+
+    cursor = messages_collection.find({
+        "room_id": int(room_id)
+    }).sort([('create_at', -1)]).limit(1)
+    try:
+        recent_message = cursor.next()
+        sender: str = recent_message["sender"]
+        text: str = recent_message["text"]
+        sent_at: str = recent_message["create_at"]
+        return {
+            "sender": sender,
+            "text": text,
+            "time": sent_at
+        }
+    except StopIteration as e:
+        print(f"No messages were sent at room with id of {room_id} - {e}")
+        return f"No messages here."

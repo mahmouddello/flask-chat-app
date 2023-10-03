@@ -74,7 +74,7 @@ def change_password() -> Response:
             "status": False,
             "message": "You can't change your password to the existing one!",
             "alertDiv": "#passwordAlert"
-})
+        })
 
     if not user_object.check_password(password_input=old_password):
         return jsonify({

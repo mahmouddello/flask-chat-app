@@ -1,93 +1,93 @@
 {% extends 'base.html' %}
 {% block title %}My Rooms{% endblock %}
 {% block content %}
-    <div class="rooms-wrapper">
-        <div class="chats-sidebar d-flex flex-column align-items-stretch flex-shrink-0 bg-body-tertiary w-50"
-             style="width: 300px;">
+<div class="rooms-wrapper">
+    <div class="chats-sidebar d-flex flex-column align-items-stretch flex-shrink-0 bg-body-tertiary w-50"
+        style="width: 300px;">
         <span href="{{ url_for }}"
-              class="d-flex align-items-center flex-shrink-0 p-3 link-body-emphasis text-decoration-none border-bottom">
+            class="d-flex align-items-center flex-shrink-0 p-3 link-body-emphasis text-decoration-none border-bottom">
             <img style="padding-right: 5px" src="{{ url_for('static', filename='images/conversation.svg') }}" alt="conv"
-                 width="30">
+                width="30">
             <span class="fs-5 fw-semibold">My Chat Rooms</span>
         </span>
-            <div class="list-group list-group-flush border-bottom scrollarea">
-                {% for room in rooms %}
-                    <a href="{{ url_for('chat.view_room', room_id=room.room_id) }}"
-                       class="list-group-item list-group-item-action active py-3 lh-sm" aria-current="true">
-                        <div class="d-flex w-100 align-items-center justify-content-between">
-                            <strong class="mb-1">{{ room.room_name }}</strong>
-                            <small>Wed</small>
-                        </div>
-                        <div class="col-10 mb-1 small">Hello</div>
-                    </a>
-                {% endfor %}
-            </div>
-        </div>
-
-        <div class="modals-buttons">
-            <!-- Button to open Create Room Modal -->
-            <button type="button" class="btn btn-success mt-3" data-bs-toggle="modal" data-bs-target="#createRoomModal">
-                Create Room
-            </button>
-
-            <!-- Button to open Join Room Modal -->
-            <button type="button" class="btn btn-warning mt-3" data-bs-toggle="modal" data-bs-target="#joinRoomModal">
-                Join Room
-            </button>
-        </div>
-
-        <!-- Join Room Modal -->
-        <div class="modal fade" id="joinRoomModal" tabindex="-1" aria-labelledby="joinRoomModalLabel"
-             aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div style="margin: 5px auto 0;" id="alert"></div>
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="joinRoomModalLabel">Join Room</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form action="{{ url_for('chat.join_room') }}" id="joinRoomModalForm" method="post">
-                            <div class="mb-3">
-                                <div class="error"></div>
-                                <label for="roomID" class="form-label">Room ID:</label>
-                                <input type="text" class="form-control" id="roomID" name="roomID">
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-                        <button id="joinRoomModalBtn" type="button" class="btn btn-success">Join</button>
-                    </div>
+        <div class="list-group list-group-flush border-bottom scrollarea">
+            {% for room in rooms %}
+            {% set latest_message = room.room_id|fetch_latest_message %}
+            <a href="{{ url_for('chat.view_room', room_id=room.room_id) }}"
+                class="list-group-item list-group-item-action active py-3 lh-sm" aria-current="true">
+                <div class="d-flex w-100 align-items-center justify-content-between">
+                    <strong class="mb-1">{{ room.room_name }}</strong>
+                    <small>{{ latest_message.sent_at }}</small>
                 </div>
-            </div>
+                <div class="col-10 mb-1 small"><b>{{latest_message.sender}}</b>: {{latest_message.text}}</div>
+            </a>
+            {% endfor %}
         </div>
+    </div>
 
-        <!-- Create Room Modal -->
-        <div class="modal fade" id="createRoomModal" tabindex="-1" aria-labelledby="createRoomModalLabel"
-             aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div style="margin: 5px auto 0;" id="alert"></div>
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="createRoomModalLabel">Create Room</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form action="{{ url_for('chat.create_room') }}" id="createRoomModalForm" method="post">
-                            <div class="mb-3">
-                                <div class="error"></div>
-                                <label for="roomName" class="form-label">Room Name:</label>
-                                <input type="text" class="form-control" id="roomName" name="roomName">
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-                        <button id="createRoomModalBtn" type="button" class="btn btn-success">Create</button>
-                    </div>
+    <div class="modals-buttons">
+        <!-- Button to open Create Room Modal -->
+        <button type="button" class="btn btn-success mt-3" data-bs-toggle="modal" data-bs-target="#createRoomModal">
+            Create Room
+        </button>
+
+        <!-- Button to open Join Room Modal -->
+        <button type="button" class="btn btn-warning mt-3" data-bs-toggle="modal" data-bs-target="#joinRoomModal">
+            Join Room
+        </button>
+    </div>
+
+    <!-- Join Room Modal -->
+    <div class="modal fade" id="joinRoomModal" tabindex="-1" aria-labelledby="joinRoomModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div style="margin: 5px auto 0;" id="alert"></div>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="joinRoomModalLabel">Join Room</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ url_for('chat.join_room') }}" id="joinRoomModalForm" method="post">
+                        <div class="mb-3">
+                            <div class="error"></div>
+                            <label for="roomID" class="form-label">Room ID:</label>
+                            <input type="text" class="form-control" id="roomID" name="roomID">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                    <button id="joinRoomModalBtn" type="button" class="btn btn-success">Join</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Create Room Modal -->
+    <div class="modal fade" id="createRoomModal" tabindex="-1" aria-labelledby="createRoomModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div style="margin: 5px auto 0;" id="alert"></div>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createRoomModalLabel">Create Room</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ url_for('chat.create_room') }}" id="createRoomModalForm" method="post">
+                        <div class="mb-3">
+                            <div class="error"></div>
+                            <label for="roomName" class="form-label">Room Name:</label>
+                            <input type="text" class="form-control" id="roomName" name="roomName">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                    <button id="createRoomModalBtn" type="button" class="btn btn-success">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

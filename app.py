@@ -7,6 +7,8 @@ from flask_login import LoginManager, current_user
 from flask_socketio import SocketIO, join_room, leave_room
 from database import get_user, save_message
 from dotenv import load_dotenv
+from jinja2 import Environment
+from database import fetch_latest_message
 
 load_dotenv("./.env")
 
@@ -19,6 +21,9 @@ socketio = SocketIO(app)
 app.register_blueprint(authentication)
 app.register_blueprint(chat)
 app.register_blueprint(dashboard_operations)
+
+# Enviorment functions
+app.jinja_env.filters['fetch_latest_message'] = fetch_latest_message
 
 
 # flask_login injection
@@ -55,7 +60,7 @@ def handle_join_room_event(data) -> None:
 @socketio.on("send_message")
 def handle_send_message_event(data) -> None:
     """
-    Handle the send message event from socket.on() in javascript.
+    Handle the sent message event from socket.on() in javascript.
 
     :param data: JSON data parsed from javascript.
     :return: None
