@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 from functools import wraps
-from typing import Callable, Any, Dict
+from typing import Callable, Any
 from random import choice
 from flask import jsonify, Response, abort, url_for
 from flask_login import current_user, logout_user
@@ -67,13 +67,12 @@ def save_user(username: str, email: str, password: str) -> Response:
             "message": "Username has already been taken! try different one"
         })
 
-    else:
-        logout_user()
-        return jsonify({
-            "status": True,
-            "message": "Registration Success! Redirecting to the login page",
-            "redirectUrl": url_for("authentication.login")
-        })
+    logout_user()
+    return jsonify({
+        "status": True,
+        "message": "Registration Success! Redirecting to the login page",
+        "redirectUrl": url_for("authentication.login")
+    })
 
 
 def db_change_username(old_username: str, new_username: str) -> Response:
@@ -126,14 +125,13 @@ def db_change_username(old_username: str, new_username: str) -> Response:
             "alertDiv": "#usernameAlert"
         })
 
-    else:
-        logout_user()
-        return jsonify({
-            "status": True,
-            "message": "Changed username successfully",
-            "alertDiv": "#usernameAlert",
-            "redirectUrl": url_for("home")
-        })
+    logout_user()
+    return jsonify({
+        "status": True,
+        "message": "Changed username successfully",
+        "alertDiv": "#usernameAlert",
+        "redirectUrl": url_for("home")
+    })
 
 
 def db_change_email(username: str, new_email: str) -> Response:
@@ -158,12 +156,12 @@ def db_change_email(username: str, new_email: str) -> Response:
             "message": "An error occurred, try again later!",
             "alertDiv": "#emailAlert"
         })
-    else:
-        logout_user()
-        return jsonify({
-            "status": True,
-            "redirectUrl": url_for("home")
-        })
+
+    logout_user()
+    return jsonify({
+        "status": True,
+        "redirectUrl": url_for("home")
+    })
 
 
 def db_change_password(username: str, new_password: str) -> Response:
@@ -187,12 +185,12 @@ def db_change_password(username: str, new_password: str) -> Response:
             "alertDiv": "#passwordAlert",
             "message": "An error occurred, try again later!"
         })
-    else:
-        logout_user()
-        return jsonify({
-            "status": True,
-            "redirectUrl": url_for("home")
-        })
+
+    logout_user()
+    return jsonify({
+        "status": True,
+        "redirectUrl": url_for("home")
+    })
 
 
 def is_room_member(room_id: int, username: str) -> int:
@@ -231,11 +229,13 @@ def admin_required(func: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(func)
     def wrapper(*args, **kwargs):
         room_id = kwargs.get("room_id")
-        username = current_user.username  # Assuming you have access to the current user's username
+        # Assuming you have access to the current user's username
+        username = current_user.username
 
         # Check if the user is an admin for the specified room
         if not is_admin(room_id, username):
-            return abort(403)  # Return a forbidden (403) error if the user is not an admin
+            # Return a forbidden (403) error if the user is not an admin
+            return abort(403)
 
         return func(*args, **kwargs)
 
@@ -245,7 +245,7 @@ def admin_required(func: Callable[..., Any]) -> Callable[..., Any]:
 def delete_room_member(room_id: int, username: str) -> Response:
     """
     Deletes member from a room, if he is admin and there is other members in the room; 
-    it transfers admin abilitiesto a random user. 
+    it transfers admin abilities-to a random user.
     if he is the only member in the room and the admin leaves, the room also get deleted.
 
     :param room_id: current room's id.
@@ -270,13 +270,16 @@ def delete_room_member(room_id: int, username: str) -> Response:
                 rooms_collection.delete_one({"room_id": room_id})
 
         # Delete the user
-        room_members_collection.delete_one({"room_id": room_id, "username": username})
+        room_members_collection.delete_one(
+            {"room_id": room_id, "username": username}
+        )
 
         return jsonify({
             "status": True,
             "message": "Leaved Room Successfully",
             "redirectUrl": url_for("chat.my_rooms")
         })
+
     except PyMongoError:
         return jsonify({
             "status": False,
@@ -298,8 +301,8 @@ def db_kick_member(room_id: int, username: str) -> Response:
         })
     except PyMongoError:
         return jsonify({"status": False})
-    else:
-        return jsonify({"status": True})
+    
+    return jsonify({"status": True})
 
 
 # Room Operations
@@ -334,7 +337,9 @@ def save_room(room_name: str, created_by: str) -> int:
         "created_by": created_by,
         "created_at": datetime.now()
     })
-    add_room_member(room_id, room_name=room_name, username=created_by, added_by=created_by, is_room_admin=True)
+
+    add_room_member(room_id, room_name=room_name, username=created_by,
+                    added_by=created_by, is_room_admin=True)
     return room_id
 
 
@@ -397,6 +402,11 @@ def join_room_member(room_id: int, room_name: str, username: str, added_by="Hims
             "message": "Joined Room Successfully",
             "redirectUrl": url_for("chat.my_rooms")
         })
+    
+    return jsonify({
+        "status": False,
+        "message": "An error occurred, try again later!"
+    })
 
 
 def get_next_sequence_value(sequence_name: str) -> int:
@@ -437,12 +447,12 @@ def db_change_room_name(room_id: int, new_room_name: str) -> Response:
             "status": False,
             "message": "Failed to change room name!"
         })
-    else:
-        return jsonify({
-            "status": True,
-            "message": "Changed Room name successfully!",
-            "redirectUrl": url_for("chat.view_room", room_id=room_id)
-        })
+
+    return jsonify({
+        "status": True,
+        "message": "Changed Room name successfully!",
+        "redirectUrl": url_for("chat.view_room", room_id=room_id)
+    })
 
 
 # Messages
@@ -477,7 +487,7 @@ def save_message(room_id: int, text: str, sender: str) -> None:
 def fetch_latest_message(room_id: int) -> dict[str, Any] | str:
     """
     Returns latest message document sent to the room.
-    
+
     :prarm room_id: The id of the room to fetch the message.
     :return: Message document.
     """
@@ -495,6 +505,7 @@ def fetch_latest_message(room_id: int) -> dict[str, Any] | str:
             "text": text,
             "time": sent_at
         }
-    except StopIteration as e:
-        print(f"No messages were sent at room with id of {room_id} - {e}")
-        return f"No messages here."
+    
+    except StopIteration as error:
+        print(f"No messages were sent at room with id of {room_id} - {error}")
+        return "No messages here."

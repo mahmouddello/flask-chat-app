@@ -50,6 +50,7 @@ def view_room(room_id: int) -> str:
             username=current_user.username,
             is_user_admin=is_admin(room_id=room_id, username=current_user.username)
         )
+    
     return abort(404)
 
 
@@ -91,6 +92,7 @@ def join_room() -> Response:
             "status": False,
             "message": "No Room Found!"
         })  # handle room isn't found
+    
     room_members = get_room_members(room_id=room_id)
     room_members = [member["username"] for member in room_members]
     if current_user.username in room_members:
@@ -98,6 +100,7 @@ def join_room() -> Response:
             "status": False,
             "message": "Already Room Member!"
         })
+    
     return join_room_member(room_id=room_id, username=current_user.username, room_name=room_name)
 
 
@@ -116,6 +119,7 @@ def create_room():
         return jsonify({
             "status": False,
             "message": "An error occurred when trying to write to the database!"})
+    
     return jsonify({
         "status": True,
         "message": "Created Room Successfully :)",
@@ -133,6 +137,7 @@ def leave_room() -> Response:
     print(data.get("room_id"))
     room_id = int(data.get("room_id"))
     username = data.get("username")
+
     return delete_room_member(room_id=room_id, username=username)
 
 
@@ -145,4 +150,5 @@ def kick_member() -> Response:
     data = request.get_json(force=True)
     room_id = int(data.get("room_id"))
     username = data.get("username")
+
     return db_kick_member(room_id=room_id, username=username)

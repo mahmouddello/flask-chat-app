@@ -1,14 +1,12 @@
 import os
 from flask import Flask, render_template
+from flask_login import LoginManager, current_user
+from flask_socketio import SocketIO, join_room, leave_room
+from dotenv import load_dotenv
 from authentication import authentication
 from chat import chat
 from dashboard import dashboard_operations
-from flask_login import LoginManager, current_user
-from flask_socketio import SocketIO, join_room, leave_room
-from database import get_user, save_message
-from dotenv import load_dotenv
-from jinja2 import Environment
-from database import fetch_latest_message
+from database import get_user, save_message, fetch_latest_message
 
 load_dotenv("./.env")
 
@@ -40,6 +38,7 @@ def home():
             logged_in=current_user.is_authenticated,
             current_user=current_user
         )
+    
     return render_template(template_name_or_list="index.html")
 
 
