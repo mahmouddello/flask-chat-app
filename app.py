@@ -20,7 +20,7 @@ app.register_blueprint(authentication)
 app.register_blueprint(chat)
 app.register_blueprint(dashboard_operations)
 
-# Enviorment functions
+# Environment functions
 app.jinja_env.filters['fetch_latest_message'] = fetch_latest_message
 
 
