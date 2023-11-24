@@ -17,8 +17,17 @@ def change_username() -> Response:
     data = request.get_json(force=True)
     new_username = data.get("new_username")
     password = data.get("password")
+
+    if user_object.username == new_username:
+        return jsonify({
+            "status": False,
+            "message": "You can't change your username to the existing one!",
+            "alertDiv": "#usernameAlert"
+        })
+
     if user_object.check_password(password_input=password):
         return db_change_username(old_username=user_object.username, new_username=new_username)
+
     return jsonify({
         "status": False,
         "message": "Invalid Password!",
