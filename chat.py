@@ -50,7 +50,7 @@ def view_room(room_id: int) -> str:
             username=current_user.username,
             is_user_admin=is_admin(room_id=room_id, username=current_user.username)
         )
-    
+
     return abort(404)
 
 
@@ -75,6 +75,7 @@ def edit_room(room_id: int) -> str | Response:
 
 
 @chat.route(rule="/join_room/", methods=["POST"])
+@login_required
 def join_room() -> Response:
     """
     Responsible about joining room logic, handles different exceptions;
@@ -92,7 +93,7 @@ def join_room() -> Response:
             "status": False,
             "message": "No Room Found!"
         })  # handle room isn't found
-    
+
     room_members = get_room_members(room_id=room_id)
     room_members = [member["username"] for member in room_members]
     if current_user.username in room_members:
@@ -100,11 +101,12 @@ def join_room() -> Response:
             "status": False,
             "message": "Already Room Member!"
         })
-    
+
     return join_room_member(room_id=room_id, username=current_user.username, room_name=room_name)
 
 
 @chat.route(rule="/create_room/", methods=["POST"])
+@login_required
 def create_room():
     """
     Responsible about creating room logic.
@@ -119,7 +121,7 @@ def create_room():
         return jsonify({
             "status": False,
             "message": "An error occurred when trying to write to the database!"})
-    
+
     return jsonify({
         "status": True,
         "message": "Created Room Successfully :)",
@@ -128,6 +130,7 @@ def create_room():
 
 
 @chat.route(rule="/leave_room/", methods=["POST"])
+@login_required
 def leave_room() -> Response:
     """
     Route to handle leave room functionality.
@@ -142,6 +145,8 @@ def leave_room() -> Response:
 
 
 @chat.route(rule="/kick_member", methods=["POST"])
+@admin_required
+@login_required
 def kick_member() -> Response:
     """
     Route to handle kicking member.

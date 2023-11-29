@@ -1,4 +1,5 @@
 import os
+import logging
 from datetime import datetime
 from functools import wraps
 from typing import Callable, Any
@@ -301,7 +302,7 @@ def db_kick_member(room_id: int, username: str) -> Response:
         })
     except PyMongoError:
         return jsonify({"status": False})
-    
+
     return jsonify({"status": True})
 
 
@@ -402,7 +403,7 @@ def join_room_member(room_id: int, room_name: str, username: str, added_by="Hims
             "message": "Joined Room Successfully",
             "redirectUrl": url_for("chat.my_rooms")
         })
-    
+
     return jsonify({
         "status": False,
         "message": "An error occurred, try again later!"
@@ -495,17 +496,18 @@ def fetch_latest_message(room_id: int) -> dict[str, Any] | str:
     cursor = messages_collection.find({
         "room_id": int(room_id)
     }).sort([('create_at', -1)]).limit(1)
+
     try:
         recent_message = cursor.next()
         sender: str = recent_message["sender"]
         text: str = recent_message["text"]
-        sent_at: str = recent_message["create_at"]
+        sent_at: str = str(recent_message["create_at"]).split(" ")[1][:5]  # fetch hour and minute only
         return {
             "sender": sender,
             "text": text,
             "time": sent_at
         }
-    
+
     except StopIteration as error:
-        print(f"No messages were sent at room with id of {room_id} - {error}")
-        return "No messages here."
+        logging.info(f"No messages were sent at room with id of {room_id} - {error}")
+        return None
