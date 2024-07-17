@@ -1,8 +1,10 @@
 import os
+
+from dotenv import load_dotenv
 from flask import Flask, render_template
 from flask_login import LoginManager, current_user
 from flask_socketio import SocketIO, join_room, leave_room
-from dotenv import load_dotenv
+
 from authentication import authentication
 from chat import chat
 from dashboard import dashboard_operations
@@ -38,7 +40,7 @@ def home():
             logged_in=current_user.is_authenticated,
             current_user=current_user
         )
-    
+
     return render_template(template_name_or_list="index.html")
 
 

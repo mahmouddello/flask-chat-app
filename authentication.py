@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify, Response
 from flask_login import login_user, logout_user, current_user, login_required
+
 from database import get_user, save_user
 
 authentication: Blueprint = Blueprint("authentication", __name__, url_prefix="/authentication")

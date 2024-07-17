@@ -1,6 +1,6 @@
+from attrs import define
 from flask_login import UserMixin
 from werkzeug.security import check_password_hash
-from attrs import define
 
 
 @define(kw_only=True)

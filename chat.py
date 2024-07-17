@@ -1,10 +1,11 @@
 from flask import Blueprint, render_template, request, jsonify, Response, abort, url_for
 from flask_login import current_user, login_required
 from pymongo.errors import PyMongoError
+
 from database import (
     get_rooms_for_user, get_room, get_messages, get_room_members,
-    join_room_member, save_room, fetch_latest_message,
-    is_room_member, is_admin, admin_required, delete_room_member, db_kick_member, db_change_room_name
+    join_room_member, save_room, is_room_member, is_admin, admin_required, delete_room_member, db_kick_member,
+    db_change_room_name
 )
 
 chat = Blueprint("chat", __name__, url_prefix="/chat")

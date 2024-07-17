@@ -1,15 +1,17 @@
-import os
 import logging
+import os
 from datetime import datetime
 from functools import wraps
-from typing import Callable, Any
 from random import choice
+from typing import Callable, Any
+
+from dotenv import load_dotenv
 from flask import jsonify, Response, abort, url_for
 from flask_login import current_user, logout_user
-from pymongo.mongo_client import MongoClient
 from pymongo.errors import DuplicateKeyError, PyMongoError
+from pymongo.mongo_client import MongoClient
 from werkzeug.security import generate_password_hash
-from dotenv import load_dotenv
+
 from user import User
 
 load_dotenv("./.env")  # .env file

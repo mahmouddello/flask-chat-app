@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, Response
 from flask_login import current_user
+
 from database import db_change_username, db_change_email, db_change_password, get_user
 
 dashboard_operations = Blueprint("dashboard_operations", __name__, url_prefix="/edit_credentials")
