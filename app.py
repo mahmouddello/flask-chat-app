@@ -8,7 +8,7 @@ from flask_socketio import SocketIO, join_room, leave_room
 from authentication import authentication
 from chat import chat
 from dashboard import dashboard_operations
-from database import get_user, save_message, fetch_latest_message
+from database import get_user, save_message, fetch_latest_message, db_initialize_sequence
 
 load_dotenv("./.env")
 
@@ -17,13 +17,16 @@ app.config["SECRET_KEY"] = os.getenv("FLASK_SECRETKEY")
 login_manager = LoginManager(app)
 socketio = SocketIO(app)
 
-# blue prints
+# blueprints
 app.register_blueprint(authentication)
 app.register_blueprint(chat)
 app.register_blueprint(dashboard_operations)
 
 # Environment functions
 app.jinja_env.filters['fetch_latest_message'] = fetch_latest_message
+
+# initialize room_id sequence
+db_initialize_sequence("room_id")
 
 
 # flask_login injection

@@ -78,6 +78,20 @@ def save_user(username: str, email: str, password: str) -> Response:
     })
 
 
+# Initialize a sequence document if it doesn't exist
+def db_initialize_sequence(sequence_name):
+    """
+    Initializes a sequence document in the 'sequences' collection if it doesn't exist.
+
+    :param sequence_name: The name of the sequence to initialize
+    :type sequence_name: str
+    :returns: None
+    """
+    if sequences_collection.count_documents({"_id": sequence_name}) == 0:
+        sequences_collection.insert_one({"_id": sequence_name, "sequence_value": 100})
+        logging.info(f"A sequence with name \"{sequence_name} has been created.")
+
+
 def db_change_username(old_username: str, new_username: str) -> Response:
     """
     Updates the username of the current user in the database.
@@ -247,9 +261,9 @@ def admin_required(func: Callable[..., Any]) -> Callable[..., Any]:
 
 def delete_room_member(room_id: int, username: str) -> Response:
     """
-    Deletes member from a room, if he is admin and there is other members in the room; 
-    it transfers admin abilities-to a random user.
-    if he is the only member in the room and the admin leaves, the room also get deleted.
+    Deletes a member from a room. If the member is the admin and there are other members in the room,
+    the admin abilities are transferred to a random user. If the admin is the only member in the room
+    and leaves, the room is deleted.
 
     :param room_id: current room's id.
     :param username: current logged-in user's username.
