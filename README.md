@@ -1,44 +1,23 @@
 # flask-chat-app
-A real time messaging chat application built with Flask, SocketIO and MongoDB.
-Minimal, easy to use and modify web based chat application, built with the power of Flask.
+Locally-hosted chat application built with Flask, SocketIO & MongoDB. Easy to use and modify.
 
-## Features
-* Login and Registration.
-* Users can update username, email and their passwords.
-* Users can create or join a room, the user who creates a room has admin abilities to edit and kick members from the room.
-* Simple and friendly UI built with Bootstrap5.
+## Features 
+* Login, register, and manage profiles through a dashboard.
+* Create, join, and leave chat rooms.
+* Admins can edit room, kick members.
+* Simple and clean UI.
 
-## Prerequisites
-* Clone the repository ```git clone https://github.com/mahmouddello/flask-chat-app```
-* Cd into the project directory `cd ./flask-chat-app`
-### Requirements
-Use ```pip install -r requirements.txt``` to install all required modules from [requirements.txt](./requirements.txt).
+> [!NOTE]
+> * UI is not responsive.<br>
+> * You should create your MongoDB database before using the application.<br>
+> * After creating the database, connect to your cluster, get your URI and replace it in `database.py`
 
-### Database
-  * Create your own Mongo Database either locally or on Mongo Atlas (Preffered).
-  * Create sequence value incrementer for ```room_id``` in MongoDB, here is an example:
-    
-    ```python
-    from pymongo import MongoClient
+## Getting Started
+1. Clone or download the repository as zip.
+2. Navigate to the project directory: `cd path/to/flask-chat-app`
+3. Install dependencies: `pip install -r requirements.txt`
+4. Run the application `python app.py`
 
-    client = MongoClient('MongoDB_URI')
-
-    # Create or access the sequences collection
-    db = client['your_database_name']
-    sequences_collection = db['sequences']
-
-    # sequence name can be `room_id`
-    def get_next_sequence_value(sequence_name):
-    result = sequences_collection.find_one_and_update(
-        {"_id": sequence_name},
-        {"$inc": {"sequence_value": 1}},
-        upsert=True,  # Create the sequence if it doesn't exist
-        return_document=True  # Return the updated document
-    )
-
-    return result["sequence_value"]
-    
-    ```
 <hr>
 <div align="center">
     <strong>Happy Coding! 💻🎉</strong>
